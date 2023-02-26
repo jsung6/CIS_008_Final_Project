@@ -9,4 +9,5 @@ These attributes have now been employed to calcualte consumer discounts, daily r
 - Dedicated feature for stock maintenance
 - Feature to access the database
 - Various options to generate bills and handle cash
+Testing
 """
