@@ -70,7 +70,7 @@ def clear_frame(frame):
     for widgets in frame.winfo_children():
         widgets.destroy()
     frame.destroy()
-ss
+
 create_login()
 
 root.mainloop()
