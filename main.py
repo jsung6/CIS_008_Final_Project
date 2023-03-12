@@ -12,30 +12,32 @@ These attributes have now been employed to calcualte consumer discounts, daily r
 """
 
 from tkinter import *
+#from tkinter.ttk import *
 
 # set as tuple? 
 user_password = {
     "admin": "admin",
-    "jsung": "jsung"
+    "jsung": "jsung",
+    "a": "a"
 }
 
 root = Tk()
 root.title("Medical Store Management System")
-root.geometry("1200x500")
-
-
+root.geometry("300x200")
+#root.configure(background='black')
 
 
 def create_login():
     frame = Frame(root)
-    frame.place(relx=0.5, rely=0.5, relwidth=0.5, relheight=0.5, anchor="c")
+    frame.place(x=20, y=40)
+
     
     # Generate login widgets
     titleLabel = Label(frame, text="Sign In")
-    userLabel = Label(frame, text="Username:")
-    userEntry = Entry(frame, width=15, borderwidth=3)
+    userLabel = Label(frame, text="Username:")#, background="#6fa8dc")
+    userEntry = Entry(frame, width=15)#, background="#6fa8dc")
     passwordLabel = Label(frame, text="Password:")
-    passwordEntry = Entry(frame, width=15, borderwidth=3, show="*")
+    passwordEntry = Entry(frame, width=15, show="*")
     rememberCheck = Checkbutton(frame, text="Remember Me")
     signButton = Button(frame, text="SIGN IN", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
@@ -49,6 +51,7 @@ def create_login():
     signButton.grid(row=3, column=1)
 
 def create_dashboard():
+    root.geometry("1200x600")
     frame = Frame(root)
     frame.place(relx=0.5, rely=0.5, relwidth=0.5, relheight=0.5, anchor="c")
     titleLabel = Label(frame, text="Welcome")
