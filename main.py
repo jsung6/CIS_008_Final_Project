@@ -119,14 +119,40 @@ def add_prescriptions(frame):
 
     clear_frame(frame)
 
+    new_entry = []
+
+    Label(frame, text="Enter new prescription information below:", font=("Arial", 15)).grid(row=0, column=0, columnspan=2)
+
     for i in range(len(prescriptionColumns)):
-        addLabel = Label(frame, text=f"{prescriptionColumns[i]}:")
-        addEntry = Entry(frame, width=15)
+        addLabel = Label(frame, text=f"{prescriptionColumns[i]}:", width=15)
+        addEntry = Entry(frame)
 
-        addLabel.grid(row=i, column=0)
-        addEntry.grid(row=i, column=1)
+        addLabel.grid(row=i+1, column=0)
+        addEntry.grid(row=i+1, column=1)
 
+        new_entry.append(addEntry)
 
+    clearButton = Button(frame, width=15, text="Clear", command=lambda: clear_Labels(frame))
+    submitButton = Button(frame, width=15, text="Submit", command=lambda: submit_Labels(new_entry, frame))
+
+    clearButton.grid(row=len(prescriptionColumns)+3, column=0)
+    submitButton.grid(row=len(prescriptionColumns)+3, column=1)
+
+    Label(frame, text='-' * 250).grid(row=len(prescriptionColumns)+4, column=0, columnspan=len(prescriptionColumns))
+
+    for i in range(len(prescriptionColumns)):
+        displayLabel = Label(frame, text=f"{prescriptionColumns[i]}:", width=15)
+        displayListbox = Listbox(frame)
+
+        displayLabel.grid(row=len(prescriptionColumns)+5, column=i)
+        displayListbox.grid(row=len(prescriptionColumns)+6, column=i)
+
+    return
+
+def clear_Labels(frame):
+    return
+
+def submit_Labels(new_entry, frame):
     return
 
 def clear_frame(frame):
