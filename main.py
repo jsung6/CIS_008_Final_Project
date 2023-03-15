@@ -117,6 +117,7 @@ def create_account():
 def add_prescriptions(frame):
     global prescriptionColumns
 
+    clear_frame(frame)
 
     for i in range(len(prescriptionColumns)):
         addLabel = Label(frame, text=f"{prescriptionColumns[i]}:")
@@ -128,6 +129,9 @@ def add_prescriptions(frame):
 
     return
 
+def clear_frame(frame):
+   for widgets in frame.winfo_children():
+      widgets.destroy()
 
 create_login()
 
