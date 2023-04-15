@@ -19,7 +19,7 @@ from tkinter import *
 user_password = {
     "admin": "admin",
     "jsung": "jsung",
-    "a": "a"
+    "": ""
 }
 
 root = Tk()
@@ -28,31 +28,22 @@ root.geometry("300x200")
 #root.configure(background='black')
 user = ""
 
-prescriptionColumns = ["Name", "Type", "Quantity", "Cost", "Description", "Expiry Date", "Location", "Manufacturer"]
+database = "medical_storage_20.db"
+tableName = "Prescription_Drugs"
+
+prescriptionColumns = ["Product_Number", "Proprietary_Name", "Non_Proprietary_Name", "Dosage_Form", "Delivery", "Manufacturer", "Substance_Name", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
 
 try:
-    sqliteConnection = sqlite3.connect('medical_storage_20.db')
-    cursor = sqliteConnection.cursor()
-    print("Database created and Successfully Connected to SQLite")
-
-    sqlite_select_Query = "select sqlite_version();"
-    cursor.execute(sqlite_select_Query)
-    record = cursor.fetchall()
-    print("SQLite Database Version is: ", record)
-    cursor.close()
-
+    medical_storage_db = sqlite3.connect(database)
+    cursor = medical_storage_db.cursor()
 except sqlite3.Error as error:
     print("Error while connecting to sqlite", error)
-finally:
-    if sqliteConnection:
-        sqliteConnection.close()
-        print("The SQLite connection is closed")
+
 
 def create_login():
     frame = Frame(root)
     frame.place(x=30, y=30)
 
-    
     # Generate patient login widgets
     titleLabel = Label(frame, text="Sign In")
     userLabel = Label(frame, text="Username:")#, background="#6fa8dc")
@@ -138,9 +129,13 @@ def add_prescriptions(frame):
 
     clear_frame(frame)
 
-    new_entry = []
+    newEntry = []
 
     Label(frame, text="Enter new prescription information below:", font=("Arial", 15)).grid(row=0, column=0, columnspan=2)
+
+    cursor.execute(f"SELECT * FROM {tableName}")
+    drugList = cursor.fetchall()
+    
 
     for i in range(len(prescriptionColumns)):
         addLabel = Label(frame, text=f"{prescriptionColumns[i]}:", width=15)
@@ -149,29 +144,43 @@ def add_prescriptions(frame):
         addLabel.grid(row=i+1, column=0)
         addEntry.grid(row=i+1, column=1)
 
-        new_entry.append(addEntry)
+        newEntry.append(addEntry)
 
-    clearButton = Button(frame, width=15, text="Clear", command=lambda: clear_Labels(frame))
-    submitButton = Button(frame, width=15, text="Submit", command=lambda: submit_Labels(new_entry, frame))
+    clearButton = Button(frame, width=15, text="Clear", command=lambda: clear_Labels(newEntry, frame))
+    submitButton = Button(frame, width=15, text="Submit", command=lambda: submit_Labels(newEntry, frame))
 
     clearButton.grid(row=len(prescriptionColumns)+3, column=0)
     submitButton.grid(row=len(prescriptionColumns)+3, column=1)
 
     Label(frame, text='-' * 250).grid(row=len(prescriptionColumns)+4, column=0, columnspan=len(prescriptionColumns))
 
-    for i in range(len(prescriptionColumns)):
-        displayLabel = Label(frame, text=f"{prescriptionColumns[i]}:", width=15)
+    for j in range(len(prescriptionColumns)):
+        displayLabel = Label(frame, text=f"{prescriptionColumns[j]}:")
         displayListbox = Listbox(frame)
 
-        displayLabel.grid(row=len(prescriptionColumns)+5, column=i)
-        displayListbox.grid(row=len(prescriptionColumns)+6, column=i)
+        displayLabel.grid(row=len(prescriptionColumns)+5, column=j)
+        displayListbox.grid(row=len(prescriptionColumns)+6, column=j)
+
+        for drug in drugList:
+            displayListbox.insert(j, drug[j])
 
     return
 
-def clear_Labels(frame):
+def clear_Labels(newEntry, frame):
+    for entry in newEntry:
+        entry.delete(0, END)
+    add_prescriptions(frame)
     return
 
-def submit_Labels(new_entry, frame):
+def submit_Labels(newEntry, frame):
+    entryItems = []
+    for entry in newEntry:
+        entryItems.append(entry.get())
+
+    cursor.execute(f"INSERT INTO {tableName} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", entryItems)
+    medical_storage_db.commit()
+    
+    clear_Labels(newEntry, frame)
     return
 
 def clear_frame(frame):
