@@ -1,6 +1,6 @@
 import sqlite3, csv
 
-conn = sqlite3.connect('medical_storage_20_db') 
+conn = sqlite3.connect('medical_storage_20.db') 
 cur = conn.cursor()
 
 cur.execute("CREATE TABLE t (Product_Number, Proprietary_Name, Non_Proprietary_Name, Dosage_Form, Delivery, Manufacturer, Substance_Name, Dosage, Unit, Category_Description, Price, Quantity);") # use your column names here

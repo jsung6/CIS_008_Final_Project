@@ -11,6 +11,7 @@ These attributes have now been employed to calcualte consumer discounts, daily r
 - Various options to generate bills and handle cash
 """
 
+import sqlite3
 from tkinter import *
 #from tkinter.ttk import *
 
@@ -28,6 +29,24 @@ root.geometry("300x200")
 user = ""
 
 prescriptionColumns = ["Name", "Type", "Quantity", "Cost", "Description", "Expiry Date", "Location", "Manufacturer"]
+
+try:
+    sqliteConnection = sqlite3.connect('medical_storage_20.db')
+    cursor = sqliteConnection.cursor()
+    print("Database created and Successfully Connected to SQLite")
+
+    sqlite_select_Query = "select sqlite_version();"
+    cursor.execute(sqlite_select_Query)
+    record = cursor.fetchall()
+    print("SQLite Database Version is: ", record)
+    cursor.close()
+
+except sqlite3.Error as error:
+    print("Error while connecting to sqlite", error)
+finally:
+    if sqliteConnection:
+        sqliteConnection.close()
+        print("The SQLite connection is closed")
 
 def create_login():
     frame = Frame(root)
