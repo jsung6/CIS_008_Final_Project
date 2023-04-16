@@ -30,6 +30,7 @@ user = ""
 
 database = "medical_storage_20.db"
 tableName = "Prescription_Drugs"
+username = ""
 
 prescriptionColumns = ["Product_Number", "Proprietary_Name", "Non_Proprietary_Name", "Dosage_Form", "Delivery", "Manufacturer", "Substance_Name", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
 
@@ -76,7 +77,7 @@ def open_dashboard(username):
     dashboardLabel = Label(frame, text=f"Medical Store Dashboard", font=("Arial", 20))
 
     orderLabel = Label(frame, text="Existing Prescriptions ", font=("Arial", 15))
-    searchPrescriptionsButton = Button(frame, width=25, text="Search Prescriptions ", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
+    searchPrescriptionsButton = Button(frame, width=25, text="Search Prescriptions ", command=lambda: search_prescriptions(frame, ["all"]))
     AddPrescriptionButton = Button(frame, width=25, text="Add New Prescription", command=lambda: add_prescriptions(frame))
     deletePrescriptionButton = Button(frame, width=25, text="Delete Existing Prescription", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
@@ -124,18 +125,49 @@ def login_check(username, password, frame):
 def create_account():
     return
 
-def add_prescriptions(frame):
-    global prescriptionColumns
-
+def search_prescriptions(frame, databaseList):
     clear_frame(frame)
 
     newEntry = []
 
-    Label(frame, text="Enter new prescription information below:", font=("Arial", 15)).grid(row=0, column=0, columnspan=2)
+    searchLabel = Label(frame, text="Search entire database:")
+    searchEntry = Entry(frame)
+    filterLabel = Label(frame, text="Filter database by category:")
+    filterEntry = Entry(frame)
 
-    cursor.execute(f"SELECT * FROM {tableName}")
-    drugList = cursor.fetchall()
+    newEntry.append(searchEntry)
+    newEntry.append(filterEntry)
+
+    variable = StringVar(frame)
+    #variable.set(prescriptionColumns[0])
+
+    dropDown = OptionMenu(frame, variable, *prescriptionColumns)
+
+    searchLabel.grid(row=0, column=0)
+    searchEntry.grid(row=1, column=0)
+    filterLabel.grid(row=2, column=0)
+    filterEntry.grid(row=3, column=0)
+    dropDown.grid(row=3, column=1)
+
+    clearButton = Button(frame, width=15, text="Clear Filters", command=lambda: clear_Labels(newEntry, frame))
+    searchButton = Button(frame, width=15, text="Search", command=lambda: search_Database([searchEntry.get(), filterEntry.get(), variable.get()], frame))
+    homeButton = Button(frame, width=15, text="Home Menu", command=lambda: home_Menu(frame))
     
+    clearButton.grid(row=4, column=0)
+    searchButton.grid(row=4, column=1)
+    homeButton.grid(row=4, column=2)
+
+    display_Inventory(frame, get_Inventory_List(databaseList))
+
+    return
+
+
+def add_prescriptions(frame):
+    clear_frame(frame)
+
+    newEntry = []
+
+    Label(frame, text="Enter new prescription information below:", font=("Arial", 15)).grid(row=0, column=0, columnspan=2)    
 
     for i in range(len(prescriptionColumns)):
         addLabel = Label(frame, text=f"{prescriptionColumns[i]}:", width=15)
@@ -148,28 +180,53 @@ def add_prescriptions(frame):
 
     clearButton = Button(frame, width=15, text="Clear", command=lambda: clear_Labels(newEntry, frame))
     submitButton = Button(frame, width=15, text="Submit", command=lambda: submit_Labels(newEntry, frame))
+    homeButton = Button(frame, width=15, text="Home Menu", command=lambda: home_Menu(frame))
 
     clearButton.grid(row=len(prescriptionColumns)+3, column=0)
     submitButton.grid(row=len(prescriptionColumns)+3, column=1)
+    homeButton.grid(row=len(prescriptionColumns)+3, column=2)
 
     Label(frame, text='-' * 250).grid(row=len(prescriptionColumns)+4, column=0, columnspan=len(prescriptionColumns))
-
-    for j in range(len(prescriptionColumns)):
-        displayLabel = Label(frame, text=f"{prescriptionColumns[j]}:")
-        displayListbox = Listbox(frame)
-
-        displayLabel.grid(row=len(prescriptionColumns)+5, column=j)
-        displayListbox.grid(row=len(prescriptionColumns)+6, column=j)
-
-        for drug in drugList:
-            displayListbox.insert(j, drug[j])
+    
+    display_Inventory(frame, get_Inventory_List(["all"]))
 
     return
+
+def display_Inventory(frame, databaseList):
+    for i in range(len(prescriptionColumns)):
+        displayLabel = Label(frame, text=f"{prescriptionColumns[i]}:")
+        displayListbox = Listbox(frame)
+
+        displayLabel.grid(row=len(prescriptionColumns)+5, column=i)
+        displayListbox.grid(row=len(prescriptionColumns)+6, column=i)
+
+        for item in databaseList:
+            displayListbox.insert(i, item[i])
+    return
+
+def get_Inventory_List(queryList):
+    query = f"SELECT * FROM {tableName} ORDER BY Proprietary_Name DESC"
+    #if len(queryList) != 1 and queryList[0] != "all":
+    #    if queryList != "":
+
+        
+    cursor.execute(query)
+    return cursor.fetchall()
+
+def search_Database(queryList, frame):
+    for query in queryList:
+        print(query)
+    return
+
+def home_Menu(frame):
+    clear_frame(frame)
+    open_dashboard(username)
+    return
+
 
 def clear_Labels(newEntry, frame):
     for entry in newEntry:
         entry.delete(0, END)
-    add_prescriptions(frame)
     return
 
 def submit_Labels(newEntry, frame):
