@@ -33,6 +33,7 @@ tableName = "Prescription_Drugs"
 username = ""
 
 prescriptionColumns = ["Product_Number", "Proprietary_Name", "Non_Proprietary_Name", "Dosage_Form", "Delivery", "Manufacturer", "Substance_Name", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
+#prescriptionColumns = ["Product_Number", "Proprietary_Name", "Non_Proprietary_Name"]
 
 try:
     medical_storage_db = sqlite3.connect(database)
@@ -149,7 +150,7 @@ def search_prescriptions(frame, databaseList):
     filterEntry.grid(row=3, column=0)
     dropDown.grid(row=3, column=1)
 
-    clearButton = Button(frame, width=15, text="Clear Filters", command=lambda: clear_Labels(newEntry, frame))
+    clearButton = Button(frame, width=15, text="Clear Filters", command=lambda: clear_Labels(newEntry))
     searchButton = Button(frame, width=15, text="Search", command=lambda: search_Database([searchEntry.get(), filterEntry.get(), variable.get()], frame))
     homeButton = Button(frame, width=15, text="Home Menu", command=lambda: home_Menu(frame))
     
@@ -157,7 +158,9 @@ def search_prescriptions(frame, databaseList):
     searchButton.grid(row=4, column=1)
     homeButton.grid(row=4, column=2)
 
-    display_Inventory(frame, get_Inventory_List(databaseList))
+    displayDrugList = display_Inventory(frame, get_Inventory_List(databaseList))
+
+    displayDrugList.grid(row=5, column=0, columnspan=len(prescriptionColumns))
 
     return
 
@@ -178,7 +181,7 @@ def add_prescriptions(frame):
 
         newEntry.append(addEntry)
 
-    clearButton = Button(frame, width=15, text="Clear", command=lambda: clear_Labels(newEntry, frame))
+    clearButton = Button(frame, width=15, text="Clear", command=lambda: clear_Labels(newEntry))
     submitButton = Button(frame, width=15, text="Submit", command=lambda: submit_Labels(newEntry, frame))
     homeButton = Button(frame, width=15, text="Home Menu", command=lambda: home_Menu(frame))
 
@@ -188,34 +191,53 @@ def add_prescriptions(frame):
 
     Label(frame, text='-' * 250).grid(row=len(prescriptionColumns)+4, column=0, columnspan=len(prescriptionColumns))
     
-    display_Inventory(frame, get_Inventory_List(["all"]))
+    displayDrugList = display_Inventory(frame, get_Inventory_List(["all"]))
+
+    displayDrugList.grid(row=len(prescriptionColumns)+5, column=0, columnspan=len(prescriptionColumns))
 
     return
-
+ 
 def display_Inventory(frame, databaseList):
+    frame1 = Frame(frame)
+
+    text_scroll = Scrollbar(frame1)
+    text_scroll.grid(row=len(prescriptionColumns)+6, column=len(prescriptionColumns), sticky=NS)
+
+    listboxWidgets = []
     for i in range(len(prescriptionColumns)):
-        displayLabel = Label(frame, text=f"{prescriptionColumns[i]}:")
-        displayListbox = Listbox(frame)
+        displayLabel = Label(frame1, text=f"{prescriptionColumns[i]}:")
+        displayListbox = Listbox(frame1, yscrollcommand=text_scroll.set)
 
         displayLabel.grid(row=len(prescriptionColumns)+5, column=i)
         displayListbox.grid(row=len(prescriptionColumns)+6, column=i)
 
+        listboxWidgets.append(displayListbox)
+
         for item in databaseList:
-            displayListbox.insert(i, item[i])
-    return
+            displayListbox.insert(END, item[i])
+
+    def multiple_yview(*args):
+        for listboxWidget in listboxWidgets:
+            listboxWidget.yview(*args)
+
+    text_scroll.config(command=multiple_yview)    
+    return frame1
 
 def get_Inventory_List(queryList):
     query = f"SELECT * FROM {tableName} ORDER BY Proprietary_Name DESC"
     #if len(queryList) != 1 and queryList[0] != "all":
-    #    if queryList != "":
-
-        
+    #    if queryList != "":       
     cursor.execute(query)
     return cursor.fetchall()
 
 def search_Database(queryList, frame):
-    for query in queryList:
-        print(query)
+    searchAllKeyword = queryList[0]
+    filterKeyword = queryList[1]
+    filterCategory = queryList[2]
+
+    if searchAllKeyword != "":
+        query = f"SELECT * FROM {tableName} ORDER BY Proprietary_Name DESC WHERE "
+    
     return
 
 def home_Menu(frame):
@@ -223,8 +245,7 @@ def home_Menu(frame):
     open_dashboard(username)
     return
 
-
-def clear_Labels(newEntry, frame):
+def clear_Labels(newEntry):
     for entry in newEntry:
         entry.delete(0, END)
     return
@@ -235,9 +256,12 @@ def submit_Labels(newEntry, frame):
         entryItems.append(entry.get())
 
     cursor.execute(f"INSERT INTO {tableName} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", entryItems)
-    medical_storage_db.commit()
+    medical_storage_db.commit()    
+    clear_Labels(newEntry)
     
-    clear_Labels(newEntry, frame)
+    return
+
+def refresh(widget, frame, row, column):
     return
 
 def clear_frame(frame):
