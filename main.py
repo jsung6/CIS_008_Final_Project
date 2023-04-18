@@ -140,7 +140,7 @@ def search_prescriptions(frame, databaseList):
     newEntry.append(filterEntry)
 
     variable = StringVar(frame)
-    #variable.set(prescriptionColumns[0])
+    variable.set(prescriptionColumns[0])
 
     dropDown = OptionMenu(frame, variable, *prescriptionColumns)
 
@@ -151,7 +151,7 @@ def search_prescriptions(frame, databaseList):
     dropDown.grid(row=3, column=1)
 
     clearButton = Button(frame, width=15, text="Clear Filters", command=lambda: clear_Labels(newEntry))
-    searchButton = Button(frame, width=15, text="Search", command=lambda: search_Database([searchEntry.get(), filterEntry.get(), variable.get()], frame))
+    searchButton = Button(frame, width=15, text="Search", command=lambda: search_prescriptions(frame, [searchEntry.get(), filterEntry.get(), variable.get()]))
     homeButton = Button(frame, width=15, text="Home Menu", command=lambda: home_Menu(frame))
     
     clearButton.grid(row=4, column=0)
@@ -225,20 +225,29 @@ def display_Inventory(frame, databaseList):
 
 def get_Inventory_List(queryList):
     query = f"SELECT * FROM {tableName} ORDER BY Proprietary_Name DESC"
-    #if len(queryList) != 1 and queryList[0] != "all":
-    #    if queryList != "":       
+ 
+    if len(queryList) == 3:
+        searchAllKeyword = queryList[0]
+        filterKeyword = queryList[1]
+        filterCategory = queryList[2]
+        
+        if searchAllKeyword != "":
+            query = f"SELECT * FROM {tableName} WHERE "
+            for i in range(len(prescriptionColumns) - 1):
+                query += f"{prescriptionColumns[i]} LIKE '%{searchAllKeyword}%' OR "
+            query += f"{prescriptionColumns[-1]} LIKE '%{searchAllKeyword}%'"
+        elif filterKeyword != "" and filterCategory != "":
+            query = f"SELECT * FROM {tableName} WHERE {filterCategory} LIKE '%{filterKeyword}%'"
+        else:
+            win = Tk()
+            #top = Toplevel(win)
+            win.geometry("250x50")
+            win.title("Invalid Search")
+            Label(win, text="Invalid search! Please try again.").pack()
+
     cursor.execute(query)
-    return cursor.fetchall()
-
-def search_Database(queryList, frame):
-    searchAllKeyword = queryList[0]
-    filterKeyword = queryList[1]
-    filterCategory = queryList[2]
-
-    if searchAllKeyword != "":
-        query = f"SELECT * FROM {tableName} ORDER BY Proprietary_Name DESC WHERE "
     
-    return
+    return cursor.fetchall()
 
 def home_Menu(frame):
     clear_frame(frame)
@@ -256,8 +265,9 @@ def submit_Labels(newEntry, frame):
         entryItems.append(entry.get())
 
     cursor.execute(f"INSERT INTO {tableName} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", entryItems)
-    medical_storage_db.commit()    
+    medical_storage_db.commit()
     clear_Labels(newEntry)
+    add_prescriptions(frame)
     
     return
 
