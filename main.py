@@ -240,7 +240,6 @@ def get_Inventory_List(queryList):
             query = f"SELECT * FROM {tableName} WHERE {filterCategory} LIKE '%{filterKeyword}%'"
         else:
             win = Tk()
-            #top = Toplevel(win)
             win.geometry("250x50")
             win.title("Invalid Search")
             Label(win, text="Invalid search! Please try again.").pack()
