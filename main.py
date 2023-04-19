@@ -28,7 +28,7 @@ root.geometry("300x200")
 #root.configure(background='black')
 user = ""
 
-databaseMed = "medical_storage_20.db"
+databaseMed = "medical_storage_1000.db"
 databasePatient = "patients.db"
 tableNameMed = "Prescription_Drugs"
 tableNamePatient = "Patients"
@@ -89,17 +89,17 @@ def open_dashboard(username):
     orderLabel = Label(frame, text="Existing Prescriptions ", font=("Arial", 15))
     searchPrescriptionsButton = Button(frame, width=25, text="Search Prescriptions ", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
     AddPrescriptionButton = Button(frame, width=25, text="Add New Prescription", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
-    deletePrescriptionButton = Button(frame, width=25, text="Delete Existing Prescription", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
+    deletePrescriptionButton = Button(frame, width=25, text="Edit/Delete Existing Prescription", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
     inventoryLabel = Label(frame, text="Current Inventory", font=("Arial", 15))
     searchInventoryButton = Button(frame, width=25, text="Search Inventory", command=lambda: search_database(frame, ["all"], tableNameMed, prescriptionColumns, cursor_med))
     AddInventoryButton = Button(frame, width=25, text="Add New Inventory", command=lambda: add_to_database(frame, tableNameMed, prescriptionColumns, databaseMed, cursor_med))
-    deleteInventoryButton = Button(frame, width=25, text="Delete Existing Inventory", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
+    deleteInventoryButton = Button(frame, width=25, text="Edit/Delete Existing Inventory", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
     
     patientLabel = Label(frame, text="Current Patients", font=("Arial", 15))
     searchPatientsButton = Button(frame, width=25, text="Search Patients", command=lambda: search_database(frame, ["all"], tableNamePatient, patientColumns, cursor_patient))
     AddPatientButton = Button(frame, width=25, text="Add New Patient", command=lambda: add_to_database(frame, tableNamePatient, patientColumns, databasePatient, cursor_patient))
-    deletePatientButton = Button(frame, width=25, text="Delete Existing Patient", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
+    deletePatientButton = Button(frame, width=25, text="Edit/Delete Existing Patient", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
     # Display dashboard widgets
     userLabel.grid(row=0, column=4)
