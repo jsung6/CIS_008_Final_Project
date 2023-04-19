@@ -1,21 +1,20 @@
-Product_Number,Proprietary_Name,Non_Proprietary_Name,Dosage_Form,Delivery,Manufacturer,Substance_Name,Dosage,Unit,Category_Description,Price,Quantity
-70710-1009,OSELTAMIVIR PHOSPHATE,oseltamivir phosphate,CAPSULE,ORAL,Zydus Pharmaceuticals USA Inc.,OSELTAMIVIR PHOSPHATE,45,mg/1,"Neuraminidase Inhibitor [EPC], Neuraminidase Inhibitors [MoA]",$156.11,48
-72252-520,Valtoco,diazepam,SPRAY,NASAL,"Neurelis, Inc",DIAZEPAM,10,mg/.1mL,"Benzodiazepine [EPC], Benzodiazepines [CS]",$44.89,54
-70518-3228,Amoxicillin,Amoxicillin,"TABLET, FILM COATED",ORAL,REMEDYREPACK INC.,AMOXICILLIN,500,mg/1,"Penicillin-class Antibacterial [EPC], Penicillins [CS]",$65.85,87
-52584-153,Amiodarone Hydrochloride,Amiodarone Hydrochloride,"INJECTION, SOLUTION",INTRAVENOUS,"General Injectables & Vaccines, Inc",AMIODARONE HYDROCHLORIDE,50,mg/mL,"Antiarrhythmic [EPC], Cytochrome P450 1A2 Inhibitors [MoA], Cytochrome P450 2C9 Inhibitors [MoA], Cytochrome P450 2D6 Inhibitors [MoA], Cytochrome P450 3A4 Inhibitors [MoA], P-Glycoprotein Inhibitors [MoA]",$3.20,51
-70518-2209,Methocarbamol,Methocarbamol,"TABLET, FILM COATED",ORAL,REMEDYREPACK INC.,METHOCARBAMOL,750,mg/1,"Centrally-mediated Muscle Relaxation [PE], Muscle Relaxant [EPC]",$19.00,38
-50458-650,ULTRACET,tramadol hydrochloride and acetaminophen,"TABLET, COATED",ORAL,"Janssen Pharmaceuticals, Inc.",ACETAMINOPHEN; TRAMADOL HYDROCHLORIDE,325; 37.5,mg/1; mg/1,"Full Opioid Agonists [MoA], Opioid Agonist [EPC]",$75.08,66
-50268-523,Meclizine Hydrochloride,Meclizine Hydrochloride,TABLET,ORAL,AvPAK,MECLIZINE HYDROCHLORIDE,25,mg/1,"Antiemetic [EPC], Emesis Suppression [PE]",$60.30,49
-68071-5113,Alprazolam,Alprazolam,TABLET,ORAL,"NuCare Pharmaceuticals,Inc.",ALPRAZOLAM,0.5,mg/1,"Benzodiazepine [EPC], Benzodiazepines [CS]",$129.88,34
-63629-8198,Pregabalin,PREGABALIN,CAPSULE,ORAL,Bryant Ranch Prepack,PREGABALIN,150,mg/1,,$20.79,77
-64950-320,Potassium Chloride,Potassium Chloride,SOLUTION,ORAL,Genus Lifesciences Inc.,POTASSIUM CHLORIDE,20,meq/15mL,"Increased Large Intestinal Motility [PE], Inhibition Large Intestine Fluid/Electrolyte Absorption [PE], Osmotic Activity [MoA], Osmotic Laxative [EPC], Potassium Compounds [CS], Potassium Salt [EPC]",$13.99,20
-29300-329,Solifenacin Succinate,Solifenacin Succinate,"TABLET, FILM COATED",ORAL,"Unichem Pharmaceuticals (USA), Inc.",SOLIFENACIN SUCCINATE,10,mg/1,"Cholinergic Muscarinic Antagonist [EPC], Cholinergic Muscarinic Antagonists [MoA]",$89.27,24
-0185-2099,"Dextroamphetamine Saccharate, Amphetamine Aspartate Monohydrate, Dextroamphetamine Sulfate and Amphetamine Sulfate","Dextroamphetamine Saccharate, Amphetamine Aspartate Monohydrate, Dextroamphetamine Sulfate and Amphetamine Sulfate",TABLET,ORAL,"Eon Labs, Inc.",AMPHETAMINE ASPARTATE MONOHYDRATE; AMPHETAMINE SULFATE; DEXTROAMPHETAMINE SACCHARATE; DEXTROAMPHETAMINE SULFATE,7.5; 7.5; 7.5; 7.5,mg/1; mg/1; mg/1; mg/1,"Central Nervous System Stimulant [EPC], Central Nervous System Stimulant [EPC], Central Nervous System Stimulant [EPC], Central Nervous System Stimulant [EPC], Central Nervous System Stimulation [PE], Central Nervous System Stimulation [PE], Central Nervous System Stimulation [PE], Central Nervous System Stimulation [PE]",$1.40,62
-49884-425,ALISKIREN,ALISKIREN,"TABLET, FILM COATED",ORAL,"Par Pharmaceutical, Inc.",ALISKIREN HEMIFUMARATE,300,mg/1,"Renin Inhibitor [EPC], Renin Inhibitors [MoA]",$54.86,30
-57237-125,Warfarin Sodium,warfarin sodium,TABLET,ORAL,"Rising Health, LLC",WARFARIN SODIUM,6,mg/1,"Vitamin K Antagonist [EPC], Vitamin K Inhibitors [MoA]",$15.64,71
-42806-665,Buspirone hydrochloride,Buspirone hydrochloride,TABLET,ORAL,"EPIC PHARMA, LLC",BUSPIRONE HYDROCHLORIDE,30,mg/1,,$76.13,91
-55111-292,Sumatriptan Succinate,Sumatriptan Succinate,TABLET,ORAL,Dr. Reddy's Laboratories Limited,SUMATRIPTAN SUCCINATE,50,mg/1,"Serotonin 1b Receptor Agonists [MoA], Serotonin 1d Receptor Agonists [MoA], Serotonin-1b and Serotonin-1d Receptor Agonist [EPC]",$57.18,42
-76420-080,Lidocaine Hydrochloride,Lidocaine Hydrochloride,"INJECTION, SOLUTION",EPIDURAL; INFILTRATION; INTRACAUDAL; PERINEURAL,"Asclemed USA, Inc.",LIDOCAINE HYDROCHLORIDE,10,mg/mL,"Amide Local Anesthetic [EPC], Amides [CS], Antiarrhythmic [EPC], Local Anesthesia [PE]",$47.34,47
-68083-462,Arsenic Trioxide,Arsenic Trioxide,INJECTION,INTRAVENOUS,Gland Pharma Limited,ARSENIC TRIOXIDE,2,mg/mL,,$58.72,91
-46708-447,Losartan Potassium,Losartan Potassium,"TABLET, FILM COATED",ORAL,Alembic Pharmaceuticals Limited,LOSARTAN POTASSIUM,100,mg/1,"Angiotensin 2 Receptor Antagonists [MoA], Angiotensin 2 Receptor Blocker [EPC]",$242.30,32
-51662-1346,CLONIDINE HCI,CLONIDINE HCI,"INJECTION, SOLUTION",INTRAVENOUS,"HF Acquisition Co LLC, DBA HealthFirst",CLONIDINE HYDROCHLORIDE,100,ug/mL,"Adrenergic alpha2-Agonists [MoA], Central alpha-2 Adrenergic Agonist [EPC]",$179.36,89
+Product_Number,Non_Proprietary_Name,Dosage_Form,Manufacturer,Dosage,Unit,Category_Description,Price,Quantity
+70710-1009,oseltamivir phosphate,CAPSULE,Zydus Pharmaceuticals USA Inc.,45,mg/1,"Neuraminidase Inhibitor [EPC], Neuraminidase Inhibitors [MoA]",$156.11,48
+72252-520,diazepam,SPRAY,"Neurelis, Inc",10,mg/.1mL,"Benzodiazepine [EPC], Benzodiazepines [CS]",$44.89,54
+70518-3228,Amoxicillin,"TABLET, FILM COATED",REMEDYREPACK INC.,500,mg/1,"Penicillin-class Antibacterial [EPC], Penicillins [CS]",$65.85,87
+52584-153,Amiodarone Hydrochloride,"INJECTION, SOLUTION","General Injectables & Vaccines, Inc",50,mg/mL,"Antiarrhythmic [EPC], Cytochrome P450 1A2 Inhibitors [MoA], Cytochrome P450 2C9 Inhibitors [MoA], Cytochrome P450 2D6 Inhibitors [MoA], Cytochrome P450 3A4 Inhibitors [MoA], P-Glycoprotein Inhibitors [MoA]",$3.20,51
+70518-2209,Methocarbamol,"TABLET, FILM COATED",REMEDYREPACK INC.,750,mg/1,"Centrally-mediated Muscle Relaxation [PE], Muscle Relaxant [EPC]",$19.00,38
+50458-650,tramadol hydrochloride and acetaminophen,"TABLET, COATED","Janssen Pharmaceuticals, Inc.",325; 37.5,mg/1; mg/1,"Full Opioid Agonists [MoA], Opioid Agonist [EPC]",$75.08,66
+50268-523,Meclizine Hydrochloride,TABLET,AvPAK,25,mg/1,"Antiemetic [EPC], Emesis Suppression [PE]",$60.30,49
+68071-5113,Alprazolam,TABLET,"NuCare Pharmaceuticals,Inc.",0.5,mg/1,"Benzodiazepine [EPC], Benzodiazepines [CS]",$129.88,34
+63629-8198,PREGABALIN,CAPSULE,Bryant Ranch Prepack,150,mg/1,,$20.79,77
+64950-320,Potassium Chloride,SOLUTION,Genus Lifesciences Inc.,20,meq/15mL,"Increased Large Intestinal Motility [PE], Inhibition Large Intestine Fluid/Electrolyte Absorption [PE], Osmotic Activity [MoA], Osmotic Laxative [EPC], Potassium Compounds [CS], Potassium Salt [EPC]",$13.99,20
+29300-329,Solifenacin Succinate,"TABLET, FILM COATED","Unichem Pharmaceuticals (USA), Inc.",10,mg/1,"Cholinergic Muscarinic Antagonist [EPC], Cholinergic Muscarinic Antagonists [MoA]",$89.27,24
+49884-425,ALISKIREN,"TABLET, FILM COATED","Par Pharmaceutical, Inc.",300,mg/1,"Renin Inhibitor [EPC], Renin Inhibitors [MoA]",$54.86,30
+57237-125,warfarin sodium,TABLET,"Rising Health, LLC",6,mg/1,"Vitamin K Antagonist [EPC], Vitamin K Inhibitors [MoA]",$15.64,71
+42806-665,Buspirone hydrochloride,TABLET,"EPIC PHARMA, LLC",30,mg/1,,$76.13,91
+55111-292,Sumatriptan Succinate,TABLET,Dr. Reddy's Laboratories Limited,50,mg/1,"Serotonin 1b Receptor Agonists [MoA], Serotonin 1d Receptor Agonists [MoA], Serotonin-1b and Serotonin-1d Receptor Agonist [EPC]",$57.18,42
+76420-080,Lidocaine Hydrochloride,"INJECTION, SOLUTION","Asclemed USA, Inc.",10,mg/mL,"Amide Local Anesthetic [EPC], Amides [CS], Antiarrhythmic [EPC], Local Anesthesia [PE]",$47.34,47
+68083-462,Arsenic Trioxide,INJECTION,Gland Pharma Limited,2,mg/mL,,$58.72,91
+46708-447,Losartan Potassium,"TABLET, FILM COATED",Alembic Pharmaceuticals Limited,100,mg/1,"Angiotensin 2 Receptor Antagonists [MoA], Angiotensin 2 Receptor Blocker [EPC]",$242.30,32
+51662-1346,CLONIDINE HCI,"INJECTION, SOLUTION","HF Acquisition Co LLC, DBA HealthFirst",100,ug/mL,"Adrenergic alpha2-Agonists [MoA], Central alpha-2 Adrenergic Agonist [EPC]",$179.36,89

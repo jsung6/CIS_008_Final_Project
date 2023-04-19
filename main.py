@@ -32,7 +32,7 @@ database = "medical_storage_20.db"
 tableName = "Prescription_Drugs"
 username = ""
 
-prescriptionColumns = ["Product_Number", "Proprietary_Name", "Non_Proprietary_Name", "Dosage_Form", "Delivery", "Manufacturer", "Substance_Name", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
+prescriptionColumns = ["Product_Number", "Non_Proprietary_Name", "Dosage_Form", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
 #prescriptionColumns = ["Product_Number", "Proprietary_Name", "Non_Proprietary_Name"]
 
 try:
