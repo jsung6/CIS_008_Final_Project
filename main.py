@@ -32,8 +32,8 @@ database = "medical_storage_20.db"
 tableName = "Prescription_Drugs"
 username = ""
 
-prescriptionColumns = ["Product_Number", "Non_Proprietary_Name", "Dosage_Form", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
-#prescriptionColumns = ["Product_Number", "Proprietary_Name", "Non_Proprietary_Name"]
+#prescriptionColumns = ["Product_Number", "Non_Proprietary_Name", "Dosage_Form", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
+prescriptionColumns = ["Product_Number", "Non_Proprietary_Name", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
 
 try:
     medical_storage_db = sqlite3.connect(database)
@@ -78,13 +78,13 @@ def open_dashboard(username):
     dashboardLabel = Label(frame, text=f"Medical Store Dashboard", font=("Arial", 20))
 
     orderLabel = Label(frame, text="Existing Prescriptions ", font=("Arial", 15))
-    searchPrescriptionsButton = Button(frame, width=25, text="Search Prescriptions ", command=lambda: search_prescriptions(frame, ["all"]))
-    AddPrescriptionButton = Button(frame, width=25, text="Add New Prescription", command=lambda: add_prescriptions(frame))
+    searchPrescriptionsButton = Button(frame, width=25, text="Search Prescriptions ", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
+    AddPrescriptionButton = Button(frame, width=25, text="Add New Prescription", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
     deletePrescriptionButton = Button(frame, width=25, text="Delete Existing Prescription", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
     inventoryLabel = Label(frame, text="Current Inventory", font=("Arial", 15))
-    searchInventoryButton = Button(frame, width=25, text="Search Inventory", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
-    AddInventoryButton = Button(frame, width=25, text="Add New Inventory", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
+    searchInventoryButton = Button(frame, width=25, text="Search Inventory", command=lambda: search_prescriptions(frame, ["all"]))
+    AddInventoryButton = Button(frame, width=25, text="Add New Inventory", command=lambda: add_prescriptions(frame))
     deleteInventoryButton = Button(frame, width=25, text="Delete Existing Inventory", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
     
     patientLabel = Label(frame, text="Current Patients", font=("Arial", 15))
@@ -205,8 +205,11 @@ def display_Inventory(frame, databaseList):
 
     listboxWidgets = []
     for i in range(len(prescriptionColumns)):
+        listboxWidth = 20
+        if prescriptionColumns[i] == "Price" or prescriptionColumns[i] == "Quantity":
+            listboxWidth = 5
         displayLabel = Label(frame1, text=f"{prescriptionColumns[i]}:")
-        displayListbox = Listbox(frame1, yscrollcommand=text_scroll.set)
+        displayListbox = Listbox(frame1, bd=4, width=listboxWidth, yscrollcommand=text_scroll.set)
 
         displayLabel.grid(row=len(prescriptionColumns)+5, column=i)
         displayListbox.grid(row=len(prescriptionColumns)+6, column=i)
@@ -224,7 +227,7 @@ def display_Inventory(frame, databaseList):
     return frame1
 
 def get_Inventory_List(queryList):
-    query = f"SELECT * FROM {tableName} ORDER BY Proprietary_Name DESC"
+    query = f"SELECT * FROM {tableName} ORDER BY Non_Proprietary_Name DESC"
  
     if len(queryList) == 3:
         searchAllKeyword = queryList[0]
@@ -263,14 +266,11 @@ def submit_Labels(newEntry, frame):
     for entry in newEntry:
         entryItems.append(entry.get())
 
-    cursor.execute(f"INSERT INTO {tableName} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", entryItems)
+    cursor.execute(f"INSERT INTO {tableName} VALUES (?, ?, ?, ?, ?, ?, ?, ?)", entryItems)
     medical_storage_db.commit()
     clear_Labels(newEntry)
     add_prescriptions(frame)
     
-    return
-
-def refresh(widget, frame, row, column):
     return
 
 def clear_frame(frame):
