@@ -92,13 +92,13 @@ def open_dashboard(username):
     deletePrescriptionButton = Button(frame, width=25, text="Delete Existing Prescription", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
     inventoryLabel = Label(frame, text="Current Inventory", font=("Arial", 15))
-    searchInventoryButton = Button(frame, width=25, text="Search Inventory", command=lambda: search_prescriptions(frame, ["all"], tableNameMed, prescriptionColumns, cursor_med))
-    AddInventoryButton = Button(frame, width=25, text="Add New Inventory", command=lambda: add_prescriptions(frame, tableNameMed, prescriptionColumns, databaseMed, cursor_med))
+    searchInventoryButton = Button(frame, width=25, text="Search Inventory", command=lambda: search_database(frame, ["all"], tableNameMed, prescriptionColumns, cursor_med))
+    AddInventoryButton = Button(frame, width=25, text="Add New Inventory", command=lambda: add_to_database(frame, tableNameMed, prescriptionColumns, databaseMed, cursor_med))
     deleteInventoryButton = Button(frame, width=25, text="Delete Existing Inventory", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
     
     patientLabel = Label(frame, text="Current Patients", font=("Arial", 15))
-    searchPatientsButton = Button(frame, width=25, text="Search Patients", command=lambda: search_prescriptions(frame, ["all"], tableNamePatient, patientColumns, cursor_patient))
-    AddPatientButton = Button(frame, width=25, text="Add New Patient", command=lambda: add_prescriptions(frame, tableNamePatient, patientColumns, databasePatient, cursor_patient))
+    searchPatientsButton = Button(frame, width=25, text="Search Patients", command=lambda: search_database(frame, ["all"], tableNamePatient, patientColumns, cursor_patient))
+    AddPatientButton = Button(frame, width=25, text="Add New Patient", command=lambda: add_to_database(frame, tableNamePatient, patientColumns, databasePatient, cursor_patient))
     deletePatientButton = Button(frame, width=25, text="Delete Existing Patient", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
     # Display dashboard widgets
@@ -134,7 +134,7 @@ def login_check(username, password, frame):
 def create_account():
     return
 
-def search_prescriptions(frame, databaseList, tableName, columns, cursor):
+def search_database(frame, databaseList, tableName, columns, cursor):
     clear_frame(frame)
 
     newEntry = []
@@ -159,7 +159,7 @@ def search_prescriptions(frame, databaseList, tableName, columns, cursor):
     dropDown.grid(row=3, column=1)
 
     clearButton = Button(frame, width=15, text="Clear Filters", command=lambda: clear_Labels(newEntry))
-    searchButton = Button(frame, width=15, text="Search", command=lambda: search_prescriptions(frame, [searchEntry.get(), filterEntry.get(), variable.get()], tableName, columns, cursor))
+    searchButton = Button(frame, width=15, text="Search", command=lambda: search_database(frame, [searchEntry.get(), filterEntry.get(), variable.get()], tableName, columns, cursor))
     homeButton = Button(frame, width=15, text="Home Menu", command=lambda: home_Menu(frame))
     
     clearButton.grid(row=4, column=0)
@@ -173,7 +173,7 @@ def search_prescriptions(frame, databaseList, tableName, columns, cursor):
     return
 
 
-def add_prescriptions(frame, tableName, columns, database, cursor):
+def add_to_database(frame, tableName, columns, database, cursor):
     clear_frame(frame)
 
     newEntry = []
@@ -286,7 +286,7 @@ def submit_Labels(newEntry, frame, tableName, columns, database, cursor):
     cursor.execute(f"INSERT INTO {tableName} VALUES (?, ?, ?, ?, ?, ?, ?, ?)", entryItems)
     database.commit()
     clear_Labels(newEntry)
-    add_prescriptions(frame, tableName, columns, database, cursor)
+    add_to_database(frame, tableName, columns, database, cursor)
     
     return
 
