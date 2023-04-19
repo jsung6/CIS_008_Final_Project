@@ -78,13 +78,13 @@ def create_login():
     newAccountButton.grid(row=5, column=0, columnspan=2)
 
 def open_dashboard(username):
-    root.geometry("800x400")
+    root.geometry("1200x500")
     frame = Frame(root)
-    frame.place(x=0, y=0)
+    frame.pack()
     userLabel = Label(frame, text=f"Welcome, {username}!", font=("Arial", 10))
     logoffButton = Button(frame, text="Logout", font=("Arial", 10))
 
-    dashboardLabel = Label(frame, text=f"Medical Store Dashboard", font=("Arial", 20))
+    dashboardLabel = Label(frame, text=f"Medical Store Dashboard", font=("Arial", 50))
 
     orderLabel = Label(frame, text="Existing Prescriptions ", font=("Arial", 15))
     searchPrescriptionsButton = Button(frame, width=25, text="Search Prescriptions ", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
@@ -105,7 +105,7 @@ def open_dashboard(username):
     userLabel.grid(row=0, column=4)
     logoffButton.grid(row=0, column=5)
 
-    dashboardLabel.grid(row=1, column=0, columnspan=3)
+    dashboardLabel.grid(row=1, column=0, columnspan=5)
     
     orderLabel.grid(row=5, column=0)
     searchPrescriptionsButton.grid(row=6, column=0)
@@ -117,10 +117,10 @@ def open_dashboard(username):
     AddInventoryButton.grid(row=7, column=1)
     deleteInventoryButton.grid(row=8, column=1)
     
-    patientLabel.grid(row=5, column=2)
-    searchPatientsButton.grid(row=6, column=2)
-    AddPatientButton.grid(row=7, column=2)
-    deletePatientButton.grid(row=8, column=2)
+    patientLabel.grid(row=5, column=2, columnspan=3)
+    searchPatientsButton.grid(row=6, column=2, columnspan=3)
+    AddPatientButton.grid(row=7, column=2, columnspan=3)
+    deletePatientButton.grid(row=8, column=2, columnspan=3)
 
 def login_check(username, password, frame):
     if (username, password) in user_password.items():
@@ -181,7 +181,7 @@ def add_to_database(frame, tableName, columns, database, cursor):
     Label(frame, text="Enter new prescription information below:", font=("Arial", 15)).grid(row=0, column=0, columnspan=2)    
 
     for i in range(len(columns)):
-        addLabel = Label(frame, text=f"{columns[i]}:", width=15)
+        addLabel = Label(frame, text=f"{columns[i]}:")
         addEntry = Entry(frame)
 
         addLabel.grid(row=i+1, column=0)
@@ -201,7 +201,7 @@ def add_to_database(frame, tableName, columns, database, cursor):
     
     displayList = display_Inventory(frame, get_Inventory_List(["all"], tableName, columns, cursor), columns)
 
-    displayList.grid(row=len(columns)+5, column=0, columnspan=len(columns))
+    displayList.grid(row=len(columns)+5, column=0, columnspan=4)
 
     return
  
@@ -270,6 +270,7 @@ def get_Inventory_List(queryList, tableName, columns, cursor):
 
 def home_Menu(frame):
     clear_frame(frame)
+    frame.destroy()
     open_dashboard(username)
     return
 
