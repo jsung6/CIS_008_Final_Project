@@ -206,8 +206,14 @@ def display_Inventory(frame, databaseList):
     listboxWidgets = []
     for i in range(len(prescriptionColumns)):
         listboxWidth = 20
-        if prescriptionColumns[i] == "Price" or prescriptionColumns[i] == "Quantity":
-            listboxWidth = 5
+        if prescriptionColumns[i] == "Dosage" or prescriptionColumns[i] == "Quantity":
+            listboxWidth = 6
+        elif prescriptionColumns[i] == "Unit" or prescriptionColumns[i] == "Price":
+            listboxWidth = 8
+        elif prescriptionColumns[i] == "Product_Number":
+            listboxWidth = 12
+        elif prescriptionColumns[i] == "Category_Description":
+            listboxWidth = 40
         displayLabel = Label(frame1, text=f"{prescriptionColumns[i]}:")
         displayListbox = Listbox(frame1, bd=4, width=listboxWidth, yscrollcommand=text_scroll.set)
 
