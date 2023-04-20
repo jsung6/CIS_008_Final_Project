@@ -23,15 +23,16 @@ user_password = {
 }
 
 root = Tk()
-root.title("Medical Store Management System")
-root.geometry("300x200")
+
 #root.configure(background='black')
 user = ""
 
 databaseMed = "medical_storage_1000.db"
 databasePatient = "patients.db"
+databaseUser = "users.db"
 tableNameMed = "Prescription_Drugs"
 tableNamePatient = "Patients"
+tableNameUsers = "Users"
 username = ""
 
 #prescriptionColumns = ["Product_Number", "Non_Proprietary_Name", "Dosage_Form", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
@@ -52,6 +53,9 @@ except sqlite3.Error as error:
 
 
 def create_login():
+    root.title("Medical Store Management System")
+    root.geometry("300x200")
+    
     frame = Frame(root)
     frame.place(x=30, y=30)
 
@@ -81,22 +85,22 @@ def open_dashboard(username):
     root.geometry("1200x500")
     frame = Frame(root)
     frame.pack()
-    userLabel = Label(frame, text=f"Welcome, {username}!", font=("Arial", 10))
-    logoffButton = Button(frame, text="Logout", font=("Arial", 10))
+    userLabel = Label(frame, text=f"Welcome, {username}!", font=("Arial", 15))
+    logoffButton = Button(frame, text="Logout", font=("Arial", 15), command=lambda: logout(frame))
 
     dashboardLabel = Label(frame, text=f"Medical Store Dashboard", font=("Arial", 50))
 
-    orderLabel = Label(frame, text="Existing Prescriptions ", font=("Arial", 15))
+    orderLabel = Label(frame, text="Existing Prescriptions ", font=("Arial", 20))
     searchPrescriptionsButton = Button(frame, width=25, text="Search Prescriptions ", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
     AddPrescriptionButton = Button(frame, width=25, text="Add New Prescription", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
     deletePrescriptionButton = Button(frame, width=25, text="Edit/Delete Existing Prescription", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
-    inventoryLabel = Label(frame, text="Current Inventory", font=("Arial", 15))
+    inventoryLabel = Label(frame, text="Current Inventory", font=("Arial", 20))
     searchInventoryButton = Button(frame, width=25, text="Search Inventory", command=lambda: search_database(frame, ["all"], tableNameMed, prescriptionColumns, cursor_med))
     AddInventoryButton = Button(frame, width=25, text="Add New Inventory", command=lambda: add_to_database(frame, tableNameMed, prescriptionColumns, databaseMed, cursor_med))
     deleteInventoryButton = Button(frame, width=25, text="Edit/Delete Existing Inventory", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
     
-    patientLabel = Label(frame, text="Current Patients", font=("Arial", 15))
+    patientLabel = Label(frame, text="Current Patients", font=("Arial", 20))
     searchPatientsButton = Button(frame, width=25, text="Search Patients", command=lambda: search_database(frame, ["all"], tableNamePatient, patientColumns, cursor_patient))
     AddPatientButton = Button(frame, width=25, text="Add New Patient", command=lambda: add_to_database(frame, tableNamePatient, patientColumns, databasePatient, cursor_patient))
     deletePatientButton = Button(frame, width=25, text="Edit/Delete Existing Patient", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
@@ -134,10 +138,18 @@ def login_check(username, password, frame):
 def create_account():
     return
 
+def logout(frame):
+    frame.destroy()
+    create_login()
+    return
+
 def search_database(frame, databaseList, tableName, columns, cursor):
     clear_frame(frame)
 
     newEntry = []
+
+    userLabel = Label(frame, text=f"Welcome, {username}!", font=("Arial", 15))
+    logoffButton = Button(frame, text="Logout", font=("Arial", 15), command=lambda: logout(frame))
 
     searchLabel = Label(frame, text="Search entire database:")
     searchEntry = Entry(frame)
@@ -156,6 +168,8 @@ def search_database(frame, databaseList, tableName, columns, cursor):
     searchEntry.grid(row=1, column=0)
     filterLabel.grid(row=2, column=0)
     filterEntry.grid(row=3, column=0)
+    userLabel.grid(row=0, column=4)
+    logoffButton.grid(row=0, column=5)
     dropDown.grid(row=3, column=1)
 
     clearButton = Button(frame, width=15, text="Clear Filters", command=lambda: clear_Labels(newEntry))
@@ -178,6 +192,9 @@ def add_to_database(frame, tableName, columns, database, cursor):
 
     newEntry = []
 
+    userLabel = Label(frame, text=f"Welcome, {username}!", font=("Arial", 15))
+    logoffButton = Button(frame, text="Logout", font=("Arial", 15), command=lambda: logout(frame))
+
     Label(frame, text="Enter new prescription information below:", font=("Arial", 15)).grid(row=0, column=0, columnspan=2)    
 
     for i in range(len(columns)):
@@ -188,6 +205,9 @@ def add_to_database(frame, tableName, columns, database, cursor):
         addEntry.grid(row=i+1, column=1)
 
         newEntry.append(addEntry)
+
+    userLabel.grid(row=0, column=2)
+    logoffButton.grid(row=0, column=3)
 
     clearButton = Button(frame, width=15, text="Clear", command=lambda: clear_Labels(newEntry))
     submitButton = Button(frame, width=15, text="Submit", command=lambda: submit_Labels(newEntry, frame, tableName, columns, database, cursor))
@@ -218,9 +238,9 @@ def display_Inventory(frame, databaseList, columns):
             listboxWidth = 6
         elif columns[i] == "Unit" or columns[i] == "Price" or columns[i] == "Gender":
             listboxWidth = 8
-        elif columns[i] == "Product_Number" or columns[i] == "First_Name" or columns[i] == "Last_Name":
+        elif columns[i] == "Product_Number" or columns[i] == "First_Name" or columns[i] == "Last_Name" or columns[i] == "Phone":
             listboxWidth = 12
-        elif columns[i] == "Category_Description":
+        elif columns[i] == "Category_Description" or columns[i] == "Prescriptions":
             listboxWidth = 40
         displayLabel = Label(frame1, text=f"{columns[i]}:")
         displayListbox = Listbox(frame1, bd=4, width=listboxWidth, yscrollcommand=text_scroll.set)
