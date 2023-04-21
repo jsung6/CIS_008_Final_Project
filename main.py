@@ -51,6 +51,11 @@ try:
 except sqlite3.Error as error:
     print("Error while connecting to patients sqlite database", error)
 
+try:
+    user_db = sqlite3.connect(databaseUser)
+    cursor_user = user_db.cursor()
+except sqlite3.Error as error:
+    print("Error while connecting to user sqlite database", error)
 
 def create_login():
     root.title("Medical Store Management System")
