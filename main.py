@@ -73,7 +73,7 @@ def create_login():
     rememberCheck = Checkbutton(frame, text="Remember Me")
     signButton = Button(frame, text="SIGN IN", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
     newAccountLabel = Label(frame, text="New here?")
-    newAccountButton = Button(frame, text="CREATE ACCOUNT", command=lambda: create_account())
+    newAccountButton = Button(frame, text="CREATE ACCOUNT", command=lambda: create_account(frame))
 
     # Display login widgets
     titleLabel.grid(row=0, column=0, columnspan=2)
@@ -97,17 +97,17 @@ def open_dashboard(username):
 
     orderLabel = Label(frame, text="Existing Prescriptions ", font=("Arial", 20))
     searchPrescriptionsButton = Button(frame, width=25, text="Search Prescriptions ", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
-    AddPrescriptionButton = Button(frame, width=25, text="Add New Prescription", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
+    addPrescriptionButton = Button(frame, width=25, text="Add New Prescription", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
     deletePrescriptionButton = Button(frame, width=25, text="Edit/Delete Existing Prescription", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
     inventoryLabel = Label(frame, text="Current Inventory", font=("Arial", 20))
     searchInventoryButton = Button(frame, width=25, text="Search Inventory", command=lambda: search_database(frame, ["all"], tableNameMed, prescriptionColumns, cursor_med))
-    AddInventoryButton = Button(frame, width=25, text="Add New Inventory", command=lambda: add_to_database(frame, tableNameMed, prescriptionColumns, databaseMed, cursor_med))
+    addInventoryButton = Button(frame, width=25, text="Add New Inventory", command=lambda: add_to_database(frame, tableNameMed, prescriptionColumns, databaseMed, cursor_med))
     deleteInventoryButton = Button(frame, width=25, text="Edit/Delete Existing Inventory", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
     
     patientLabel = Label(frame, text="Current Patients", font=("Arial", 20))
     searchPatientsButton = Button(frame, width=25, text="Search Patients", command=lambda: search_database(frame, ["all"], tableNamePatient, patientColumns, cursor_patient))
-    AddPatientButton = Button(frame, width=25, text="Add New Patient", command=lambda: add_to_database(frame, tableNamePatient, patientColumns, databasePatient, cursor_patient))
+    addPatientButton = Button(frame, width=25, text="Add New Patient", command=lambda: add_to_database(frame, tableNamePatient, patientColumns, databasePatient, cursor_patient))
     deletePatientButton = Button(frame, width=25, text="Edit/Delete Existing Patient", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
     # Display dashboard widgets
@@ -118,17 +118,17 @@ def open_dashboard(username):
     
     orderLabel.grid(row=5, column=0)
     searchPrescriptionsButton.grid(row=6, column=0)
-    AddPrescriptionButton.grid(row=7, column=0)
+    addPrescriptionButton.grid(row=7, column=0)
     deletePrescriptionButton.grid(row=8, column=0)
     
     inventoryLabel.grid(row=5, column=1)
     searchInventoryButton.grid(row=6, column=1)
-    AddInventoryButton.grid(row=7, column=1)
+    addInventoryButton.grid(row=7, column=1)
     deleteInventoryButton.grid(row=8, column=1)
     
     patientLabel.grid(row=5, column=2, columnspan=3)
     searchPatientsButton.grid(row=6, column=2, columnspan=3)
-    AddPatientButton.grid(row=7, column=2, columnspan=3)
+    addPatientButton.grid(row=7, column=2, columnspan=3)
     deletePatientButton.grid(row=8, column=2, columnspan=3)
 
 def login_check(username, password, frame):
@@ -140,7 +140,34 @@ def login_check(username, password, frame):
         errorLabel.grid(row=6, column=0, columnspan=2)
     return
 
-def create_account():
+def create_account(frame):
+    frame.destroy()
+    root.geometry("600x400")
+    frame = Frame(root)
+    frame.pack()
+    headerLabel = Label(frame, text="Create A New Medical Storage Management System Account")
+    usernameLabel = Label(frame, text="Username*")
+    passwordLabel = Label(frame, text="Password*")
+    firstNameLabel = Label(frame, text="First Name*")
+    middleInitialLabel = Label(frame, text="Middle Initial")
+    lastNameLabel = Label(frame, text="Last Name*")
+    genderLabel = Label(frame, text="Gender")
+    birthdateLabel = Label(frame, text="Birthdate")
+    addressLabel = Label(frame, text="Address")
+    zipcodeLabel = Label(frame, text="Zip COde")
+    cityLabel = Label(frame, text="City")
+    stateLabel = Label(frame, text="State")
+    emailLabel = Label(frame, text="Email")
+    phoneLabel = Label(frame, text="Phone")
+
+    headerLabel.grid(row=0, column=0, columnspan=3)
+    usernameLabel.grid(row=1, column=0)
+    passwordLabel.grid(row=2, column=0)
+    firstNameLabel.grid(row=3, column=0)
+    middleInitialLabel.grid(row=3, column=1)
+    lastNameLabel.grid(row=3, column=2)
+
+    
     return
 
 def logout(frame):
