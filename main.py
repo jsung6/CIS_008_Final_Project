@@ -30,14 +30,16 @@ user = ""
 databaseMed = "medical_storage_1000.db"
 databasePatient = "patients.db"
 databaseUser = "users.db"
+databasePres = "prescription_test.db"
 tableNameMed = "Prescription_Drugs"
 tableNamePatient = "Patients"
 tableNameUsers = "Users"
+tableNamePres = "pres"
 username = ""
 
-#prescriptionColumns = ["Product_Number", "Non_Proprietary_Name", "Dosage_Form", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
-prescriptionColumns = ["Product_Number", "Non_Proprietary_Name", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
-patientColumns = ["First_Name", "Middle_Initial", "Last_Name", "Gender", "Age", "Email", "Phone", "Prescriptions"]
+inventoryColumns = ["Product_Number", "Non_Proprietary_Name", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
+prescriptionColumns = ["First_name", "Last_Name", "Age", "Drug", "Dosage", "Unit", "Quantity"]
+patientColumns = ["First_Name", "Middle_Initial", "Last_Name", "Gender", "Age", "Email", "Phone"]
 
 try:
     medical_storage_db = sqlite3.connect(databaseMed)
@@ -56,6 +58,12 @@ try:
     cursor_user = user_db.cursor()
 except sqlite3.Error as error:
     print("Error while connecting to user sqlite database", error)
+
+try:
+    pres_db = sqlite3.connect(databasePres)
+    cursor_pres = pres_db.cursor()
+except sqlite3.Error as error:
+    print("Error while connecting to prescription sqlite database", error)
 
 def create_login():
     root.title("Medical Store Management System")
@@ -96,19 +104,28 @@ def open_dashboard(username):
     dashboardLabel = Label(frame, text=f"Medical Store Dashboard", font=("Arial", 50))
 
     orderLabel = Label(frame, text="Existing Prescriptions ", font=("Arial", 20))
-    searchPrescriptionsButton = Button(frame, width=25, text="Search Prescriptions ", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
-    addPrescriptionButton = Button(frame, width=25, text="Add New Prescription", command=lambda: login_check(userEntry.get() , passwordEntry.get(), frame))
-    deletePrescriptionButton = Button(frame, width=25, text="Edit/Delete Existing Prescription", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
+    searchPrescriptionsButton = Button(frame, width=25, text="Search Prescriptions ",
+                                       command=lambda: search_database(frame, ["all"], tableNamePres, prescriptionColumns, cursor_pres))
+    addPrescriptionButton = Button(frame, width=25, text="Add New Prescription",
+                                   command=lambda: add_to_database(frame, tableNamePres, prescriptionColumns, databaseMed, cursor_pres))
+    deletePrescriptionButton = Button(frame, width=25, text="Edit Existing Prescription",
+                                      command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
     inventoryLabel = Label(frame, text="Current Inventory", font=("Arial", 20))
-    searchInventoryButton = Button(frame, width=25, text="Search Inventory", command=lambda: search_database(frame, ["all"], tableNameMed, prescriptionColumns, cursor_med))
-    addInventoryButton = Button(frame, width=25, text="Add New Inventory", command=lambda: add_to_database(frame, tableNameMed, prescriptionColumns, databaseMed, cursor_med))
-    deleteInventoryButton = Button(frame, width=25, text="Edit/Delete Existing Inventory", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
+    searchInventoryButton = Button(frame, width=25, text="Search Inventory",
+                                   command=lambda: search_database(frame, ["all"], tableNameMed, inventoryColumns, cursor_med))
+    addInventoryButton = Button(frame, width=25, text="Add New Inventory",
+                                command=lambda: add_to_database(frame, tableNameMed, prescriptionColumns, databaseMed, cursor_med))
+    deleteInventoryButton = Button(frame, width=25, text="Edit/Delete Existing Inventory",
+                                   command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
     
     patientLabel = Label(frame, text="Current Patients", font=("Arial", 20))
-    searchPatientsButton = Button(frame, width=25, text="Search Patients", command=lambda: search_database(frame, ["all"], tableNamePatient, patientColumns, cursor_patient))
-    addPatientButton = Button(frame, width=25, text="Add New Patient", command=lambda: add_to_database(frame, tableNamePatient, patientColumns, databasePatient, cursor_patient))
-    deletePatientButton = Button(frame, width=25, text="Edit/Delete Existing Patient", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
+    searchPatientsButton = Button(frame, width=25, text="Search Patients",
+                                  command=lambda: search_database(frame, ["all"], tableNamePatient, patientColumns, cursor_patient))
+    addPatientButton = Button(frame, width=25, text="Add New Patient",
+                              command=lambda: add_to_database(frame, tableNamePatient, patientColumns, databasePatient, cursor_patient))
+    deletePatientButton = Button(frame, width=25, text="Edit/Delete Existing Patient",
+                                 command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
     # Display dashboard widgets
     userLabel.grid(row=0, column=4)
@@ -297,6 +314,12 @@ def get_Inventory_List(queryList, tableName, columns, cursor):
 
     if tableName == "Patients":
         query = f"SELECT * FROM {tableName} ORDER BY Last_Name ASC"
+
+    if tableName == "pres":
+        query = """SELECT Patients.First_name, Patients.Last_name, Patients.Age,Prescription_Drugs.Non_Proprietary_Name,
+                    Prescription_Drugs.Dosage, Prescription_Drugs.Unit, pres.Quantity
+                FROM Patients, Prescription_Drugs
+                JOIN pres ON Patients.Patient_id = pres.Patient_id AND Prescription_Drugs.Drug_id = pres.Drug_id"""
  
     if len(queryList) == 3:
         searchAllKeyword = queryList[0]
@@ -346,6 +369,7 @@ def submit_Labels(newEntry, frame, tableName, columns, database, cursor):
 def clear_frame(frame):
    for widgets in frame.winfo_children():
       widgets.destroy()
+
 
 create_login()
 
