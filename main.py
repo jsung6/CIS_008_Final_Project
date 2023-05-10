@@ -105,7 +105,7 @@ def open_dashboard(username):
 
     orderLabel = Label(frame, text="Existing Prescriptions ", font=("Arial", 20))
     searchPrescriptionsButton = Button(frame, width=25, text="Search Prescriptions ",
-                                       command=lambda: search_database(frame, ["all"], tableNamePres, prescriptionColumns, cursor_pres))
+                                       command=lambda: search_prescription(frame, ["all"], tableNamePres, prescriptionColumns, cursor_pres))
     addPrescriptionButton = Button(frame, width=25, text="Add New Prescription",
                                    command=lambda: add_to_database(frame, tableNamePres, prescriptionColumns, databaseMed, cursor_pres))
     deletePrescriptionButton = Button(frame, width=25, text="Edit Existing Prescription",
@@ -147,6 +147,82 @@ def open_dashboard(username):
     searchPatientsButton.grid(row=6, column=2, columnspan=3)
     addPatientButton.grid(row=7, column=2, columnspan=3)
     deletePatientButton.grid(row=8, column=2, columnspan=3)
+
+
+def search_prescription(frame, databaseList, tableName, columns, cursor):
+    clear_frame(frame)
+
+    newEntry = []
+
+    userLabel = Label(frame, text=f"Welcome, {username}!", font=("Arial", 15))
+    logoffButton = Button(frame, text="Logout", font=("Arial", 15), command=lambda: logout(frame))
+
+    search_name_label = Label(frame, text="Search by name:")# old name: searchEntryLabel
+    search_name = Entry(frame) # searchEntry
+    search_medicine_label = Label(frame, text="Search by medicine:") # filterEntryLabel
+    search_medicine = Entry(frame) # filterEntry
+
+    newEntry.append(search_name)
+    newEntry.append(search_medicine)
+
+    variable = StringVar(frame)
+    variable.set(columns[0])
+
+    #dropDown = OptionMenu(frame, variable, *columns)
+
+    search_name_label.grid(row=0, column=0)
+    search_name.grid(row=1, column=0)
+    search_medicine_label.grid(row=2, column=0)
+    search_medicine.grid(row=3, column=0)
+    userLabel.grid(row=0, column=4)
+    logoffButton.grid(row=0, column=5)
+    #dropDown.grid(row=3, column=1)
+
+    clearButton = Button(frame, width=15, text="Clear Filters", command=lambda: clear_Labels(newEntry))
+    searchButton = Button(frame, width=15, text="Search",
+                          command=lambda: search_prescription(frame, [search_name.get(), search_medicine.get()],
+                                                        tableName, columns, cursor))
+    homeButton = Button(frame, width=15, text="Home Menu", command=lambda: home_Menu(frame))
+
+    clearButton.grid(row=4, column=0)
+    searchButton.grid(row=4, column=1)
+    homeButton.grid(row=4, column=2)
+
+    displayList = display_Inventory(frame, get_Prescription_List(databaseList, columns, cursor), columns)
+
+    displayList.grid(row=5, column=0, columnspan=len(columns))
+
+    return
+
+
+def get_Prescription_List(queryList, columns, cursor):
+    query = """SELECT Patients.First_name, Patients.Last_name, Patients.Age,Prescription_Drugs.Non_Proprietary_Name,
+                    Prescription_Drugs.Dosage, Prescription_Drugs.Unit, pres.Quantity
+                FROM Patients, Prescription_Drugs
+                JOIN pres ON Patients.Patient_id = pres.Patient_id AND Prescription_Drugs.Drug_id = pres.Drug_id"""
+
+    if len(queryList) == 2:
+        patientName = queryList[0]
+        medicineName = queryList[1]
+
+        if patientName != "" and medicineName !="":
+            query += f" WHERE Patients.First_name LIKE '%{patientName}%' " \
+                     f" OR Patients.Last_name LIKE '%{patientName}%'" \
+                     f" AND Prescription_Drugs.Non_Proprietary_Name LIKE '%{medicineName}%'"
+        elif patientName != "":
+            query += f" WHERE Patients.First_name LIKE '%{patientName}%' OR Patients.Last_name LIKE '%{patientName}%'"
+        elif medicineName != "":
+            query += f" WHERE Prescription_Drugs.Non_Proprietary_Name LIKE '%{medicineName}%'"
+
+        else:
+            win = Tk()
+            win.geometry("250x50")
+            win.title("Invalid Search")
+            Label(win, text="Invalid search! Please try again.").pack()
+
+    cursor.execute(query)
+
+    return cursor.fetchall()
 
 def login_check(username, password, frame):
     if (username, password) in user_password.items():
