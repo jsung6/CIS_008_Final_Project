@@ -10,22 +10,12 @@ These attributes have now been employed to calcualte consumer discounts, daily r
 - Feature to access the database
 - Various options to generate bills and handle cash
 """
-
 import sqlite3
+import tkinter
+
 from tkinter import *
-#from tkinter.ttk import *
-
-# set as tuple? 
-user_password = {
-    "admin": "admin",
-    "jsung": "jsung",
-    "": ""
-}
-
-root = Tk()
-
-#root.configure(background='black')
-user = ""
+from tkinter.ttk import *
+from calendar import *
 
 databaseMed = "medical_storage_1000.db"
 databasePatient = "patients.db"
@@ -34,6 +24,29 @@ tableNameMed = "Prescription_Drugs"
 tableNamePatient = "Patients"
 tableNameUsers = "Users"
 username = ""
+
+def save_data(username,password,firstname,lastname,root):
+    Username = username.get()
+    Password = password.get()
+    First_name = firstname.get()
+    Last_name = lastname.get()
+    insert_query = ''' INSERT INTO Users (Username,Password,First_name,Last_name) VALUES (?,?,?,?)'''
+    data_insert_tuple = (Username,Password,First_name,Last_name)
+    cursor_user.execute(insert_query,data_insert_tuple)
+    user_db.commit()
+    #root.destroy()
+def close(rt):
+    rt.quit()
+
+
+
+
+root = Tk()
+
+#root.configure(background='black')
+#user = ""
+
+
 
 #prescriptionColumns = ["Product_Number", "Non_Proprietary_Name", "Dosage_Form", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
 prescriptionColumns = ["Product_Number", "Non_Proprietary_Name", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
@@ -57,9 +70,12 @@ try:
 except sqlite3.Error as error:
     print("Error while connecting to user sqlite database", error)
 
+# to get data from user database
+user_password = (cursor_user.execute('select Username, Password from Users').fetchall())
+
 def create_login():
     root.title("Medical Store Management System")
-    root.geometry("300x200")
+    root.geometry("400x200")
     
     frame = Frame(root)
     frame.place(x=30, y=30)
@@ -91,7 +107,8 @@ def open_dashboard(username):
     frame = Frame(root)
     frame.pack()
     userLabel = Label(frame, text=f"Welcome, {username}!", font=("Arial", 15))
-    logoffButton = Button(frame, text="Logout", font=("Arial", 15), command=lambda: logout(frame))
+    logoffButton = Button(frame, text="Logout",command=lambda: logout(frame))
+
 
     dashboardLabel = Label(frame, text=f"Medical Store Dashboard", font=("Arial", 50))
 
@@ -132,7 +149,7 @@ def open_dashboard(username):
     deletePatientButton.grid(row=8, column=2, columnspan=3)
 
 def login_check(username, password, frame):
-    if (username, password) in user_password.items():
+    if (username, password) in user_password:
         frame.destroy()
         open_dashboard(username)
     else:
@@ -147,27 +164,64 @@ def create_account(frame):
     frame.pack()
     headerLabel = Label(frame, text="Create A New Medical Storage Management System Account")
     usernameLabel = Label(frame, text="Username*")
+    username_entry = Entry(frame)
     passwordLabel = Label(frame, text="Password*")
+    password_entry = Entry(frame,show='*')
     firstNameLabel = Label(frame, text="First Name*")
+    firstName_entry = Entry(frame)
     middleInitialLabel = Label(frame, text="Middle Initial")
+    middleInitil_entry = Entry(frame)
     lastNameLabel = Label(frame, text="Last Name*")
+    last_entry = Entry(frame)
     genderLabel = Label(frame, text="Gender")
+    gender_entry = Combobox(frame,values=['Male','Female'])
     birthdateLabel = Label(frame, text="Birthdate")
+    birthdate_entry = Entry(frame)
     addressLabel = Label(frame, text="Address")
-    zipcodeLabel = Label(frame, text="Zip COde")
+    address_entry = Entry(frame)
+    zipcodeLabel = Label(frame, text="Zip Code")
+    zipcode_entry = Entry(frame)
     cityLabel = Label(frame, text="City")
+    city_entry = Entry(frame)
     stateLabel = Label(frame, text="State")
+    state_entry = Entry(frame)
     emailLabel = Label(frame, text="Email")
+    email_entry = Entry(frame,width=50)
     phoneLabel = Label(frame, text="Phone")
+    phone_entry = Entry(frame)
 
     headerLabel.grid(row=0, column=0, columnspan=3)
     usernameLabel.grid(row=1, column=0)
-    passwordLabel.grid(row=2, column=0)
-    firstNameLabel.grid(row=3, column=0)
-    middleInitialLabel.grid(row=3, column=1)
-    lastNameLabel.grid(row=3, column=2)
+    username_entry.grid(row=1,column=1)
+    passwordLabel.grid(row=1, column=2)
+    password_entry.grid(row=1,column=3,padx=10,pady=10)
+    firstNameLabel.grid(row=2, column=0)
+    firstName_entry.grid(row=2,column=1)
+    middleInitialLabel.grid(row=2, column=2)
+    middleInitil_entry.grid(row=2,column=3,padx=10,pady=10)
+    lastNameLabel.grid(row=3, column=0)
+    last_entry.grid(row=3,column=1)
+    genderLabel.grid(row=3, column=2)
+    gender_entry.grid(row=3,column=3,padx=10,pady=10)
+    birthdateLabel.grid(row=4,column=0)
+    birthdate_entry.grid(row=4,column=1)
+    addressLabel.grid(row=4,column=2)
+    address_entry.grid(row=4,column=3,padx=10,pady=10)
+    zipcodeLabel.grid(row=5,column=0)
+    zipcode_entry.grid(row=5,column=1)
+    cityLabel.grid(row=5,column=2)
+    city_entry.grid(row=5,column=3,padx=10,pady=10)
+    stateLabel.grid(row=6,column=0)
+    state_entry.grid(row=6,column=1)
+    phoneLabel.grid(row=6,column=2)
+    phone_entry.grid(row=6,column=3,padx=10,pady=10)
+    emailLabel.grid(row=7,column=0,padx=20,pady=10)
+    email_entry.grid(row=7,column=1,columnspan=5,padx=10,pady=10)
 
-    
+    save_entry = tkinter.Button(frame, text="Save", command=lambda : save_data(username_entry,password_entry, firstName_entry ,last_entry,frame))
+    save_entry.grid(row=8, column=0,sticky='news', padx=10, pady=10)
+    delete_entry = tkinter.Button(frame, text='Close', command=lambda : close(frame))
+    delete_entry.grid(row=8, column=2, padx=10, pady=10, sticky='news')
     return
 
 def logout(frame):
@@ -181,7 +235,7 @@ def search_database(frame, databaseList, tableName, columns, cursor):
     newEntry = []
 
     userLabel = Label(frame, text=f"Welcome, {username}!", font=("Arial", 15))
-    logoffButton = Button(frame, text="Logout", font=("Arial", 15), command=lambda: logout(frame))
+    logoffButton = Button(frame, text="Logout", command=lambda: logout(frame))
 
     searchLabel = Label(frame, text="Search entire database:")
     searchEntry = Entry(frame)
@@ -225,9 +279,9 @@ def add_to_database(frame, tableName, columns, database, cursor):
     newEntry = []
 
     userLabel = Label(frame, text=f"Welcome, {username}!", font=("Arial", 15))
-    logoffButton = Button(frame, text="Logout", font=("Arial", 15), command=lambda: logout(frame))
+    logoffButton = Button(frame, text="Logout", command=lambda: logout(frame))
 
-    Label(frame, text="Enter new prescription information below:", font=("Arial", 15)).grid(row=0, column=0, columnspan=2)    
+    Label(frame, text="Enter New Prescription Information below:", font=("Arial", 15)).grid(row=0, column=0, columnspan=2)
 
     for i in range(len(columns)):
         addLabel = Label(frame, text=f"{columns[i]}:")
@@ -337,7 +391,7 @@ def submit_Labels(newEntry, frame, tableName, columns, database, cursor):
         entryItems.append(entry.get())
 
     cursor.execute(f"INSERT INTO {tableName} VALUES (?, ?, ?, ?, ?, ?, ?, ?)", entryItems)
-    database.commit()
+    #database.commit()
     clear_Labels(newEntry)
     add_to_database(frame, tableName, columns, database, cursor)
     
