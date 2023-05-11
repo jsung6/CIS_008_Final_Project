@@ -12,10 +12,10 @@ These attributes have now been employed to calcualte consumer discounts, daily r
 """
 import sqlite3
 import tkinter
-
+from tkinter import messagebox
 from tkinter import *
 from tkinter.ttk import *
-from calendar import *
+from tkcalendar import DateEntry
 
 databaseMed = "medical_storage_1000.db"
 databasePatient = "patients.db"
@@ -25,16 +25,27 @@ tableNamePatient = "Patients"
 tableNameUsers = "Users"
 username = ""
 
-def save_data(username,password,firstname,lastname,root):
+def save_data(username,password,firstname,m_name,lastname,gender,bday,role,addr,zipcode,city,state,phone,email,window):
     Username = username.get()
     Password = password.get()
     First_name = firstname.get()
+    Middle_Initial= m_name.get()
     Last_name = lastname.get()
-    insert_query = ''' INSERT INTO Users (Username,Password,First_name,Last_name) VALUES (?,?,?,?)'''
-    data_insert_tuple = (Username,Password,First_name,Last_name)
+    Gender = gender.get()
+    Birthdate = bday.get()
+    Role = role.get()
+    Address = addr.get()
+    Zipcode = zipcode.get()
+    City = city.get()
+    State = state.get()
+    Phone = phone.get()
+    Email = email.get()
+
+    insert_query = ''' INSERT INTO Users (Username,Password,First_name,Middle_Initial,Last_name,Gender,Birthdate,Role,Address,Zipcode,City,State,Phone,Email) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+    data_insert_tuple = (Username,Password,First_name,Middle_Initial,Last_name,Gender,Birthdate,Role,Address,Zipcode,City,State,Phone,Email)
     cursor_user.execute(insert_query,data_insert_tuple)
     user_db.commit()
-    #root.destroy()
+    window.quit()
 def close(rt):
     rt.quit()
 
@@ -153,8 +164,9 @@ def login_check(username, password, frame):
         frame.destroy()
         open_dashboard(username)
     else:
-        errorLabel = Label(frame, text="Username and/or password not correct. Please try again.")
-        errorLabel.grid(row=6, column=0, columnspan=2)
+        #errorLabel = Label(frame, text="Username and/or password not correct. Please try again.")
+        errorLabal = tkinter.messagebox.showwarning(title='Login Warning', message="Username and/or password not correct. Please try again.")
+        #errorLabel.grid(row=6, column=0, columnspan=2)
     return
 
 def create_account(frame):
@@ -174,9 +186,11 @@ def create_account(frame):
     lastNameLabel = Label(frame, text="Last Name*")
     last_entry = Entry(frame)
     genderLabel = Label(frame, text="Gender")
-    gender_entry = Combobox(frame,values=['Male','Female'])
+    gender_entry = Combobox(frame,values=['Male','Female'], width=17)
     birthdateLabel = Label(frame, text="Birthdate")
-    birthdate_entry = Entry(frame)
+    birthdate_entry = DateEntry(frame,selectmode='day', width=17)
+    rolelabel = Label(frame, text='Role')
+    role_entry = Combobox(frame,values=['Admin','Manager','HR'],width=17)
     addressLabel = Label(frame, text="Address")
     address_entry = Entry(frame)
     zipcodeLabel = Label(frame, text="Zip Code")
@@ -185,10 +199,10 @@ def create_account(frame):
     city_entry = Entry(frame)
     stateLabel = Label(frame, text="State")
     state_entry = Entry(frame)
-    emailLabel = Label(frame, text="Email")
-    email_entry = Entry(frame,width=50)
     phoneLabel = Label(frame, text="Phone")
     phone_entry = Entry(frame)
+    emailLabel = Label(frame, text="Email")
+    email_entry = Entry(frame,width=20)
 
     headerLabel.grid(row=0, column=0, columnspan=3)
     usernameLabel.grid(row=1, column=0)
@@ -205,20 +219,22 @@ def create_account(frame):
     gender_entry.grid(row=3,column=3,padx=10,pady=10)
     birthdateLabel.grid(row=4,column=0)
     birthdate_entry.grid(row=4,column=1)
-    addressLabel.grid(row=4,column=2)
-    address_entry.grid(row=4,column=3,padx=10,pady=10)
-    zipcodeLabel.grid(row=5,column=0)
-    zipcode_entry.grid(row=5,column=1)
-    cityLabel.grid(row=5,column=2)
-    city_entry.grid(row=5,column=3,padx=10,pady=10)
-    stateLabel.grid(row=6,column=0)
-    state_entry.grid(row=6,column=1)
-    phoneLabel.grid(row=6,column=2)
-    phone_entry.grid(row=6,column=3,padx=10,pady=10)
-    emailLabel.grid(row=7,column=0,padx=20,pady=10)
-    email_entry.grid(row=7,column=1,columnspan=5,padx=10,pady=10)
+    rolelabel.grid(row=4, column= 2)
+    role_entry.grid(row=4, column=3,padx=10,pady=10)
+    addressLabel.grid(row=5,column=0)
+    address_entry.grid(row=5,column=1)
+    zipcodeLabel.grid(row=5,column=2)
+    zipcode_entry.grid(row=5,column=3,padx=10,pady=10)
+    cityLabel.grid(row=6,column=0)
+    city_entry.grid(row=6,column=1)
+    stateLabel.grid(row=6,column=2)
+    state_entry.grid(row=6,column=3,padx=10,pady=10)
+    phoneLabel.grid(row=7,column=0)
+    phone_entry.grid(row=7,column=1)
+    emailLabel.grid(row=7,column=2,padx=10,pady=10)
+    email_entry.grid(row=7,column=3,padx=10,pady=10)
 
-    save_entry = tkinter.Button(frame, text="Save", command=lambda : save_data(username_entry,password_entry, firstName_entry ,last_entry,frame))
+    save_entry = tkinter.Button(frame, text="Save", command=lambda : save_data(username_entry,password_entry, firstName_entry ,middleInitil_entry,last_entry,gender_entry,birthdate_entry,role_entry,address_entry,zipcode_entry,city_entry,state_entry,phone_entry,email_entry,frame))
     save_entry.grid(row=8, column=0,sticky='news', padx=10, pady=10)
     delete_entry = tkinter.Button(frame, text='Close', command=lambda : close(frame))
     delete_entry.grid(row=8, column=2, padx=10, pady=10, sticky='news')
