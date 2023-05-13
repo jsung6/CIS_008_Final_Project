@@ -25,40 +25,7 @@ tableNamePatient = "Patients"
 tableNameUsers = "Users"
 username = ""
 
-def save_data(username,password,firstname,m_name,lastname,gender,bday,role,addr,zipcode,city,state,phone,email,window):
-    Username = username.get()
-    Password = password.get()
-    First_name = firstname.get()
-    Middle_Initial= m_name.get()
-    Last_name = lastname.get()
-    Gender = gender.get()
-    Birthdate = bday.get()
-    Role = role.get()
-    Address = addr.get()
-    Zipcode = zipcode.get()
-    City = city.get()
-    State = state.get()
-    Phone = phone.get()
-    Email = email.get()
-
-    insert_query = ''' INSERT INTO Users (Username,Password,First_name,Middle_Initial,Last_name,Gender,Birthdate,Role,Address,Zipcode,City,State,Phone,Email) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
-    data_insert_tuple = (Username,Password,First_name,Middle_Initial,Last_name,Gender,Birthdate,Role,Address,Zipcode,City,State,Phone,Email)
-    cursor_user.execute(insert_query,data_insert_tuple)
-    user_db.commit()
-    window.quit()
-def close(rt):
-    rt.quit()
-
-
-
-
 root = Tk()
-
-#root.configure(background='black')
-#user = ""
-
-
-
 #prescriptionColumns = ["Product_Number", "Non_Proprietary_Name", "Dosage_Form", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
 prescriptionColumns = ["Product_Number", "Non_Proprietary_Name", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
 patientColumns = ["First_Name", "Middle_Initial", "Last_Name", "Gender", "Age", "Email", "Phone", "Prescriptions"]
@@ -136,7 +103,7 @@ def open_dashboard(username):
     patientLabel = Label(frame, text="Current Patients", font=("Arial", 20))
     searchPatientsButton = Button(frame, width=25, text="Search Patients", command=lambda: search_database(frame, ["all"], tableNamePatient, patientColumns, cursor_patient))
     addPatientButton = Button(frame, width=25, text="Add New Patient", command=lambda: add_to_database(frame, tableNamePatient, patientColumns, databasePatient, cursor_patient))
-    deletePatientButton = Button(frame, width=25, text="Edit/Delete Existing Patient", command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
+    deletePatientButton = Button(frame, width=25, text="Edit/Delete Existing Patient", command=lambda: Display_patients(frame,tableNamePatient,cursor_patient))
 
     # Display dashboard widgets
     userLabel.grid(row=0, column=4)
@@ -326,7 +293,81 @@ def add_to_database(frame, tableName, columns, database, cursor):
     displayList.grid(row=len(columns)+5, column=0, columnspan=4)
 
     return
- 
+def save_data(username,password,firstname,m_name,lastname,gender,bday,role,addr,zipcode,city,state,phone,email,window):
+    Username = username.get()
+    Password = password.get()
+    First_name = firstname.get()
+    Middle_Initial= m_name.get()
+    Last_name = lastname.get()
+    Gender = gender.get()
+    Birthdate = bday.get()
+    Role = role.get()
+    Address = addr.get()
+    Zipcode = zipcode.get()
+    City = city.get()
+    State = state.get()
+    Phone = phone.get()
+    Email = email.get()
+    # user db interface
+    insert_query = ''' INSERT INTO Users (Username,Password,First_name,Middle_Initial,Last_name,Gender,Birthdate,Role,Address,Zipcode,City,State,Phone,Email) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+    data_insert_tuple = (Username,Password,First_name,Middle_Initial,Last_name,Gender,Birthdate,Role,Address,Zipcode,City,State,Phone,Email)
+    cursor_user.execute(insert_query,data_insert_tuple)
+    user_db.commit()
+    window.quit()
+def close(rt):
+    rt.quit()
+
+def Display_patients(rt,TableName,cursor):
+    clear_frame(rt)
+    tkinter.Label(rt,text='Edit/Delete Patients Record',font=('Arial',15)).grid(row=0,column=0,columnspan=6,padx=10,pady=10)
+    query = f'SELECT * FROM {TableName} ORDER BY First_Name Asc LIMIT 15'
+    rows = cursor.execute(query).fetchall()
+    # to display columns name of patients table
+    k = tkinter.Label(rt, text='First_Name')
+    k.grid(row=1, column=0, padx=10, pady=10)
+    l = tkinter.Label(rt, text='Middle_Name')
+    l.grid(row=1, column=1, padx=10, pady=10)
+    l = tkinter.Label(rt, text='Last_Name')
+    l.grid(row=1, column=2, padx=10, pady=10)
+    m = tkinter.Label(rt, text='Gender')
+    m.grid(row=1, column=3, padx=10, pady=10)
+    m = tkinter.Label(rt, text='Age')
+    m.grid(row=1, column=4, padx=10, pady=10)
+    n = tkinter.Label(rt, text='Email')
+    n.grid(row=1, column=5, padx=10, pady=10)
+    m = tkinter.Label(rt, text='Phone')
+    m.grid(row=1, column=6, padx=10, pady=10)
+    m = tkinter.Label(rt, text='Prescription')
+    m.grid(row=1, column=7, padx=10, pady=10)
+
+    r = 1
+    for row in rows:
+        for j in range(len(row)):
+            z = tkinter.Entry(rt)
+            z.grid(row=r,column=j)
+            z.insert(END,row[j])
+
+        del1 = tkinter.Button(rt, text='X', command= lambda d=row[0]: patient_del(d,rt,TableName,cursor))
+        del1.grid(row=r,column=j+1)
+        r += 1
+    homeButton = Button(rt, width=15, text="Home Menu", command=lambda: home_Menu(rt))
+    homeButton.grid(row=17,column=1,columnspan=6,sticky='e',padx=10,pady=10)
+    edit = Button(rt,width=15,text='Edit', command= None)
+    edit.grid(row=17,column=0,columnspan=6,sticky='w',padx=10,pady=10)
+
+
+def patient_del(t,win,tb_name,cur):
+    var = messagebox.askyesnocancel("Delete?","Delete First_Name:" + t,default='no')
+    if var:
+        query = "DELETE FROM Patients WHERE First_Name = ?"
+        data = (t,)
+        conn = cursor_patient.execute(query,data)
+        messagebox.showerror('Deleted?','Number of row deleted :'+ str(conn.rowcount))
+        patients_db.commit()
+    # to refresh table
+    Display_patients(win,tb_name,cur)
+    return
+
 def display_Inventory(frame, databaseList, columns):
     frame1 = Frame(frame)
 
@@ -415,6 +456,7 @@ def submit_Labels(newEntry, frame, tableName, columns, database, cursor):
 
 def clear_frame(frame):
    for widgets in frame.winfo_children():
+
       widgets.destroy()
 
 create_login()
