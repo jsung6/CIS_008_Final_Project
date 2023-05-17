@@ -38,7 +38,7 @@ tableNamePres = "pres"
 username = ""
 
 inventoryColumns = ["Product_Number", "Non_Proprietary_Name", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
-prescriptionColumns = ["First_name", "Last_Name", "Age", "Drug", "Dosage", "Unit", "Quantity"]
+prescriptionColumns = ["Patient_Id", "First_Name", "Last_Name", "Age", "Medicine_Id", "Medicine_Name", "Dosage", "Unit", "Quantity"]
 patientColumns = ["First_Name", "Middle_Initial", "Last_Name", "Gender", "Age", "Email", "Phone"]
 
 try:
@@ -107,7 +107,7 @@ def open_dashboard(username):
     searchPrescriptionsButton = Button(frame, width=25, text="Search Prescriptions ",
                                        command=lambda: search_prescription(frame, ["all"], tableNamePres, prescriptionColumns, cursor_pres))
     addPrescriptionButton = Button(frame, width=25, text="Add New Prescription",
-                                   command=lambda: add_to_database(frame, tableNamePres, prescriptionColumns, databaseMed, cursor_pres))
+                                   command=lambda: add_prescription(frame, tableNamePres, prescriptionColumns, pres_db, cursor_pres))
     deletePrescriptionButton = Button(frame, width=25, text="Edit Existing Prescription",
                                       command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
@@ -115,7 +115,7 @@ def open_dashboard(username):
     searchInventoryButton = Button(frame, width=25, text="Search Inventory",
                                    command=lambda: search_database(frame, ["all"], tableNameMed, inventoryColumns, cursor_med))
     addInventoryButton = Button(frame, width=25, text="Add New Inventory",
-                                command=lambda: add_to_database(frame, tableNameMed, prescriptionColumns, databaseMed, cursor_med))
+                                command=lambda: add_to_database(frame, tableNameMed, inventoryColumns, pres_db, cursor_med))
     deleteInventoryButton = Button(frame, width=25, text="Edit/Delete Existing Inventory",
                                    command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
     
@@ -123,7 +123,7 @@ def open_dashboard(username):
     searchPatientsButton = Button(frame, width=25, text="Search Patients",
                                   command=lambda: search_database(frame, ["all"], tableNamePatient, patientColumns, cursor_patient))
     addPatientButton = Button(frame, width=25, text="Add New Patient",
-                              command=lambda: add_to_database(frame, tableNamePatient, patientColumns, databasePatient, cursor_patient))
+                              command=lambda: add_to_database(frame, tableNamePatient, patientColumns, pres_db, cursor_patient))
     deletePatientButton = Button(frame, width=25, text="Edit/Delete Existing Patient",
                                  command=lambda: login_check(userEntry.get(), passwordEntry.get(), frame))
 
@@ -136,17 +136,17 @@ def open_dashboard(username):
     orderLabel.grid(row=5, column=0)
     searchPrescriptionsButton.grid(row=6, column=0)
     addPrescriptionButton.grid(row=7, column=0)
-    deletePrescriptionButton.grid(row=8, column=0)
+    #deletePrescriptionButton.grid(row=8, column=0)
     
     inventoryLabel.grid(row=5, column=1)
     searchInventoryButton.grid(row=6, column=1)
     addInventoryButton.grid(row=7, column=1)
-    deleteInventoryButton.grid(row=8, column=1)
+    #deleteInventoryButton.grid(row=8, column=1)
     
     patientLabel.grid(row=5, column=2, columnspan=3)
     searchPatientsButton.grid(row=6, column=2, columnspan=3)
     addPatientButton.grid(row=7, column=2, columnspan=3)
-    deletePatientButton.grid(row=8, column=2, columnspan=3)
+    #deletePatientButton.grid(row=8, column=2, columnspan=3)
 
 
 def search_prescription(frame, databaseList, tableName, columns, cursor):
@@ -157,9 +157,9 @@ def search_prescription(frame, databaseList, tableName, columns, cursor):
     userLabel = Label(frame, text=f"Welcome, {username}!", font=("Arial", 15))
     logoffButton = Button(frame, text="Logout", font=("Arial", 15), command=lambda: logout(frame))
 
-    search_name_label = Label(frame, text="Search by name:")# old name: searchEntryLabel
+    search_name_label = Label(frame, text="Search by patient name:")# old name: searchEntryLabel
     search_name = Entry(frame) # searchEntry
-    search_medicine_label = Label(frame, text="Search by medicine:") # filterEntryLabel
+    search_medicine_label = Label(frame, text="Search by medicine name:") # filterEntryLabel
     search_medicine = Entry(frame) # filterEntry
 
     newEntry.append(search_name)
@@ -188,18 +188,17 @@ def search_prescription(frame, databaseList, tableName, columns, cursor):
     searchButton.grid(row=4, column=1)
     homeButton.grid(row=4, column=2)
 
-    displayList = display_Inventory(frame, get_Prescription_List(databaseList, columns, cursor), columns)
+    displayList = display_Inventory(frame, get_prescription_list(databaseList, columns, cursor), columns)
 
     displayList.grid(row=5, column=0, columnspan=len(columns))
 
     return
 
-
-def get_Prescription_List(queryList, columns, cursor):
-    query = """SELECT Patients.First_name, Patients.Last_name, Patients.Age,Prescription_Drugs.Non_Proprietary_Name,
-                    Prescription_Drugs.Dosage, Prescription_Drugs.Unit, pres.Quantity
+def get_prescription_list(queryList, columns, cursor):
+    query = """SELECT Patients.Patient_id, Patients.First_name, Patients.Last_name, Patients.Age, Prescription_Drugs.Product_Number,
+                    Prescription_Drugs.Non_Proprietary_Name, Prescription_Drugs.Dosage, Prescription_Drugs.Unit, pres.Quantity
                 FROM Patients, Prescription_Drugs
-                JOIN pres ON Patients.Patient_id = pres.Patient_id AND Prescription_Drugs.Drug_id = pres.Drug_id"""
+                JOIN pres ON Patients.Patient_id = pres.Patient_id AND Prescription_Drugs.Product_Number = pres.Drug_id"""
 
     if len(queryList) == 2:
         patientName = queryList[0]
@@ -223,6 +222,100 @@ def get_Prescription_List(queryList, columns, cursor):
     cursor.execute(query)
 
     return cursor.fetchall()
+
+def get_patient_ids(cursor):
+    query = f"SELECT Patient_id Patients FROM Patients"
+    cursor.execute(query)
+    return [item[0] for item in cursor.fetchall()]
+
+def get_patient_name(patientId, cursor):
+    query = f"SELECT First_name, Last_name FROM Patients WHERE Patient_id = {patientId}"
+    cursor.execute(query)
+    result = cursor.fetchone()
+    return result[0] + " " + result[1]
+
+def get_drug_ids(cursor):
+    query = f"SELECT Product_Number FROM Prescription_Drugs"
+    cursor.execute(query)
+    return [item[0] for item in cursor.fetchall()]
+
+def get_drug_name(drugId, cursor):
+    query = f"SELECT Non_Proprietary_Name FROM Prescription_Drugs WHERE Product_Number = '{drugId}'"
+    cursor.execute(query)
+    result = cursor.fetchone()
+    return result
+
+def insert_prescription(newEntry, frame, tableName, columns, database, cursor):
+    entryItems = []
+    for entry in newEntry:
+        entryItems.append(entry.get())
+    cursor.execute(f"INSERT INTO {tableName} (Patient_id,Drug_id,Quantity) VALUES (?, ?, ?)", entryItems)
+    database.commit()
+    add_prescription(frame, tableName, columns, database, cursor)
+    return
+def add_prescription(frame, tableName, columns, database, cursor):
+    clear_frame(frame)
+
+    userLabel = Label(frame, text=f"Welcome, {username}!", font=("Arial", 15))
+    logoffButton = Button(frame, text="Logout", font=("Arial", 15), command=lambda: logout(frame))
+
+    Label(frame, text="Enter new prescription information below:", font=("Arial", 15)).grid(row=0, column=0,
+                                                                                            columnspan=2)
+
+    patientId = StringVar(frame)
+    patientId.set("Patient_Id")
+    addLabel1 = Label(frame, text="Patient ID:")
+    addLabel1.grid(row=1, column=0)
+    dropDown1 = OptionMenu(frame, patientId, *get_patient_ids(cursor))
+    dropDown1.grid(row=1, column=1)
+    patientOut = StringVar(frame)
+    patientOut.set("Patient Name")
+    patientName = Label(frame, textvariable=patientOut)
+    patientName.grid(row=1, column=2)
+    def updatePatient(*args):
+        patientOut.set(get_patient_name(patientId.get(), cursor))
+    patientId.trace('w', updatePatient)
+
+    drugId = StringVar(frame)
+    drugId.set("Medicine_Id")
+    addLabel2 = Label(frame, text="Medicine ID:")
+    addLabel2.grid(row=2, column=0)
+    dropDown2 = OptionMenu(frame, drugId, *get_drug_ids(cursor))
+    dropDown2.grid(row=2, column=1)
+    drugOut = StringVar(frame)
+    drugOut.set("Medicine Name")
+    drugName = Label(frame, textvariable=drugOut)
+    drugName.grid(row=2, column=2)
+    def updateDrug(*args):
+        drugOut.set(get_drug_name(drugId.get(), cursor))
+    drugId.trace('w', updateDrug)
+
+    quantity = Label(frame, text="Quantity:")
+    quantityEntry = Entry(frame)
+    quantity.grid(row=3, column=0)
+    quantityEntry.grid(row=3, column=1)
+
+    userLabel.grid(row=0, column=2)
+    logoffButton.grid(row=0, column=3)
+
+    newPrescription = [patientId, drugId, quantityEntry]
+
+    clearButton = Button(frame, width=15, text="Clear", command=lambda: clear_Labels([quantityEntry]))
+    submitButton = Button(frame, width=15, text="Submit",
+                          command=lambda: insert_prescription(newPrescription, frame, tableName, columns, database, cursor))
+    homeButton = Button(frame, width=15, text="Home Menu", command=lambda: home_Menu(frame))
+
+    clearButton.grid(row=len(columns) + 3, column=0)
+    submitButton.grid(row=len(columns) + 3, column=1)
+    homeButton.grid(row=len(columns) + 3, column=2)
+
+    Label(frame, text='-' * 250).grid(row=len(columns) + 4, column=0, columnspan=len(columns))
+
+    displayList = display_Inventory(frame, get_prescription_list(["all"], columns, cursor), columns)
+
+    displayList.grid(row=len(columns) + 5, column=0, columnspan=4)
+
+    return
 
 def login_check(username, password, frame):
     if (username, password) in user_password.items():
