@@ -156,7 +156,7 @@ def create_account(frame):
     gender_entry = Combobox(frame,values=['Male','Female'], width=17)
     birthdateLabel = Label(frame, text="Birthdate")
     birthdate_entry = DateEntry(frame,selectmode='day', width=17)
-    rolelabel = Label(frame, text='Role')
+    rolelabel = Label(frame, text='Role*')
     role_entry = Combobox(frame,values=['Admin','Manager','HR'],width=17)
     addressLabel = Label(frame, text="Address")
     address_entry = Entry(frame)
@@ -294,6 +294,11 @@ def add_to_database(frame, tableName, columns, database, cursor):
 
     return
 def save_data(username,password,firstname,m_name,lastname,gender,bday,role,addr,zipcode,city,state,phone,email,window):
+    # error if required field is empty
+    if username.get()=="" or password.get() == "" or firstname.get() == "" or lastname.get()=="" or role.get()=="":
+        messagebox.showerror('Error',"Please enter required field")
+        return
+    # for getting data
     Username = username.get()
     Password = password.get()
     First_name = firstname.get()
@@ -319,28 +324,20 @@ def close(rt):
 
 def Display_patients(rt,TableName,cursor):
     clear_frame(rt)
-    tkinter.Label(rt,text='Edit/Delete Patients Record',font=('Arial',15)).grid(row=0,column=0,columnspan=6,padx=10,pady=10)
+    Label(rt,text='Edit/Delete Patients Record',font=('Arial',15)).grid(row=0,column=0,columnspan=6,padx=10,pady=10)
     query = f'SELECT * FROM {TableName} ORDER BY First_Name Asc LIMIT 15'
     rows = cursor.execute(query).fetchall()
     # to display columns name of patients table
-    k = tkinter.Label(rt, text='First_Name')
-    k.grid(row=1, column=0, padx=10, pady=10)
-    l = tkinter.Label(rt, text='Middle_Name')
-    l.grid(row=1, column=1, padx=10, pady=10)
-    l = tkinter.Label(rt, text='Last_Name')
-    l.grid(row=1, column=2, padx=10, pady=10)
-    m = tkinter.Label(rt, text='Gender')
-    m.grid(row=1, column=3, padx=10, pady=10)
-    m = tkinter.Label(rt, text='Age')
-    m.grid(row=1, column=4, padx=10, pady=10)
-    n = tkinter.Label(rt, text='Email')
-    n.grid(row=1, column=5, padx=10, pady=10)
-    m = tkinter.Label(rt, text='Phone')
-    m.grid(row=1, column=6, padx=10, pady=10)
-    m = tkinter.Label(rt, text='Prescription')
-    m.grid(row=1, column=7, padx=10, pady=10)
+    Label(rt, text='First_Name').grid(row=1, column=0, padx=10, pady=10)
+    Label(rt, text='Middle_Name').grid(row=1, column=1, padx=10, pady=10)
+    Label(rt, text='Last_Name').grid(row=1, column=2, padx=10, pady=10)
+    Label(rt, text='Gender').grid(row=1, column=3, padx=10, pady=10)
+    Label(rt, text='Age').grid(row=1, column=4, padx=10, pady=10)
+    Label(rt, text='Email').grid(row=1, column=5, padx=10, pady=10)
+    Label(rt, text='Phone').grid(row=1, column=6, padx=10, pady=10)
+    Label(rt, text='Prescription').grid(row=1, column=7, padx=10, pady=10)
 
-    r = 1
+    r = 2
     for row in rows:
         for j in range(len(row)):
             z = tkinter.Entry(rt)
@@ -349,11 +346,12 @@ def Display_patients(rt,TableName,cursor):
 
         del1 = tkinter.Button(rt, text='X', command= lambda d=row[0]: patient_del(d,rt,TableName,cursor))
         del1.grid(row=r,column=j+1)
+        edit = Button(rt, width=15, text='Edit', command=lambda d=row[0]: Edit(d, rt, TableName, cursor))
+        edit.grid(row=17, column=0, columnspan=6, sticky='w', padx=10, pady=10)
         r += 1
     homeButton = Button(rt, width=15, text="Home Menu", command=lambda: home_Menu(rt))
     homeButton.grid(row=17,column=1,columnspan=6,sticky='e',padx=10,pady=10)
-    edit = Button(rt,width=15,text='Edit', command= None)
-    edit.grid(row=17,column=0,columnspan=6,sticky='w',padx=10,pady=10)
+
 
 
 def patient_del(t,win,tb_name,cur):
@@ -361,11 +359,49 @@ def patient_del(t,win,tb_name,cur):
     if var:
         query = "DELETE FROM Patients WHERE First_Name = ?"
         data = (t,)
-        conn = cursor_patient.execute(query,data)
+        conn = cur.execute(query,data)
         messagebox.showerror('Deleted?','Number of row deleted :'+ str(conn.rowcount))
         patients_db.commit()
     # to refresh table
     Display_patients(win,tb_name,cur)
+    return
+def Edit(t,window,tablename,cursor):
+    #Display_patients(window,tablename,cursor)
+    r = cursor.execute(f"SELECT * FROM {tablename}  where First_Name = ?",(t,))
+    s = r.fetchone()
+    str_First_Name = StringVar(window)
+    str_Middle_Name = StringVar(window)
+    str_Last_Name = StringVar(window)
+    str_Gender = StringVar(window)
+    str_Age = StringVar(window)
+    str_Email = StringVar(window)
+    str_Phone = StringVar(window)
+    str_Prescription = StringVar(window)
+    # to store data
+    str_First_Name.set(s[0])
+    str_Middle_Name.set(s[1])
+    str_Last_Name.set(s[2])
+    str_Gender.set(s[3])
+    str_Age.set(s[4])
+    str_Email.set(s[5])
+    str_Phone.set(s[6])
+    str_Prescription.set(s[7])
+    Entry(window,textvariable=str_First_Name).grid(row=1,column=0)
+    Entry(window,textvariable=str_Middle_Name).grid(row=1,column=1)
+    Entry(window,textvariable=str_Last_Name).grid(row=1,column=2)
+    Entry(window,textvariable=str_Gender).grid(row=1,column=3)
+    Entry(window,textvariable=str_Age).grid(row=1,column=4)
+    Entry(window,textvariable=str_Email).grid(row=1,column=5)
+    Entry(window,textvariable=str_Phone).grid(row=1,column=6)
+    Entry(window,textvariable=str_Prescription).grid(row=1,column=7)
+    K=Button(window,text='Update', command= lambda : my_update())
+    K.grid(row=17,column=1)
+    def my_update():
+        query = f'UPDATE {tablename} SET First_Name,Middle_Name,Last_Name,Gender,Age,Email,Phone,Prescription VALUES(?,?,?,?,?,?,?,) WHERE First_Name = ?'
+        data = (str_First_Name.get(), str_Middle_Name.get(), str_Last_Name.get(), str_Gender.get(), str_Age.get(), str_Email.get(), str_Phone.get(), str_Prescription.get())
+        cursor.execute(query,data)
+        patients_db.commit()
+        Display_patients(window,tablename,cursor)
     return
 
 def display_Inventory(frame, databaseList, columns):
