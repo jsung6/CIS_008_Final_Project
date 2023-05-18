@@ -343,13 +343,13 @@ def Display_patients(rt,TableName,cursor):
     Label(rt, text='Age').grid(row=1, column=4, padx=10, pady=10)
     Label(rt, text='Email').grid(row=1, column=5, padx=10, pady=10)
     Label(rt, text='Phone').grid(row=1, column=6, padx=10, pady=10)
-    Label(rt, text='Prescription').grid(row=1, column=7, padx=10, pady=10)
+    
     
 
 
     r = 2
     for row in rows:
-        for j in range(len(row)):
+        for j in range(len(row)-1):
             z = tkinter.Entry(rt)
             z.grid(row=r,column=j)
             z.insert(END,row[j])
@@ -387,7 +387,7 @@ def Edit(t,row_num, window,tablename,cursor):
     str_Age = StringVar(window)
     str_Email = StringVar(window)
     str_Phone = StringVar(window)
-    str_Prescription = StringVar(window)
+    
 
     # to store data
     str_First_Name.set(s[0])
@@ -397,7 +397,7 @@ def Edit(t,row_num, window,tablename,cursor):
     str_Age.set(s[4])
     str_Email.set(s[5])
     str_Phone.set(s[6])
-    str_Prescription.set(s[7])
+   
     #print("str_First_Name" + s[0])
     #print("str_Phone" + s[6])
     Entry(window,textvariable=str_First_Name).grid(row=row_num,column=0)
@@ -407,13 +407,13 @@ def Edit(t,row_num, window,tablename,cursor):
     Entry(window,textvariable=str_Age).grid(row=row_num,column=4)
     Entry(window,textvariable=str_Email).grid(row=row_num,column=5)
     Entry(window,textvariable=str_Phone).grid(row=row_num,column=6)
-    Entry(window,textvariable=str_Prescription).grid(row=row_num,column=7)
+   
     K=Button(window,text='Update', command= lambda : my_update())
-    K.grid(row=row_num,column=9)
+    K.grid(row=row_num,column=8)
     
     def my_update():
-        query = f"UPDATE Patients SET First_Name = ?,Middle_Initial = ?,Last_Name =?,Gender=?,Age=?,Email=?,Phone=?,Prescriptions=? WHERE First_Name = ?"
-        data = (str_First_Name.get(), str_Middle_Name.get(), str_Last_Name.get(), str_Gender.get(), str_Age.get(), str_Email.get(), str_Phone.get(), str_Prescription.get(),t)
+        query = f"UPDATE Patients SET First_Name = ?,Middle_Initial = ?,Last_Name =?,Gender=?,Age=?,Email=?,Phone=? WHERE First_Name = ?"
+        data = (str_First_Name.get(), str_Middle_Name.get(), str_Last_Name.get(), str_Gender.get(), str_Age.get(), str_Email.get(), str_Phone.get(),t)
         #print("Query : " + query)
         #print(data)
 
