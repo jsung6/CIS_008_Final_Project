@@ -39,6 +39,7 @@ except sqlite3.Error as error:
 try:
     patients_db = sqlite3.connect(databasePatient)
     cursor_patient = patients_db.cursor()
+    patients_db.set_trace_callback(print)
 except sqlite3.Error as error:
     print("Error while connecting to patients sqlite database", error)
 
@@ -81,7 +82,7 @@ def create_login():
     newAccountButton.grid(row=5, column=0, columnspan=2)
 
 def open_dashboard(username):
-    root.geometry("1200x500")
+    root.geometry("1800x700")
     frame = Frame(root)
     frame.pack()
     userLabel = Label(frame, text=f"Welcome, {username}!", font=("Arial", 15))
@@ -336,6 +337,8 @@ def Display_patients(rt,TableName,cursor):
     Label(rt, text='Email').grid(row=1, column=5, padx=10, pady=10)
     Label(rt, text='Phone').grid(row=1, column=6, padx=10, pady=10)
     Label(rt, text='Prescription').grid(row=1, column=7, padx=10, pady=10)
+    
+
 
     r = 2
     for row in rows:
@@ -343,15 +346,15 @@ def Display_patients(rt,TableName,cursor):
             z = tkinter.Entry(rt)
             z.grid(row=r,column=j)
             z.insert(END,row[j])
-
+        #print("Rownum 1: :" + str(r))
+        edit = tkinter.Button(rt, width=15, text='Edit', command=lambda d=row[0], row_num=r: Edit(d,str(row_num), rt, TableName, cursor))
+        edit.grid(row=r,column=j+2)
         del1 = tkinter.Button(rt, text='X', command= lambda d=row[0]: patient_del(d,rt,TableName,cursor))
         del1.grid(row=r,column=j+1)
-        edit = Button(rt, width=15, text='Edit', command=lambda d=row[0]: Edit(d, rt, TableName, cursor))
-        edit.grid(row=17, column=0, columnspan=6, sticky='w', padx=10, pady=10)
         r += 1
     homeButton = Button(rt, width=15, text="Home Menu", command=lambda: home_Menu(rt))
     homeButton.grid(row=17,column=1,columnspan=6,sticky='e',padx=10,pady=10)
-
+    
 
 
 def patient_del(t,win,tb_name,cur):
@@ -365,7 +368,8 @@ def patient_del(t,win,tb_name,cur):
     # to refresh table
     Display_patients(win,tb_name,cur)
     return
-def Edit(t,window,tablename,cursor):
+def Edit(t,row_num, window,tablename,cursor):
+    
     #Display_patients(window,tablename,cursor)
     r = cursor.execute(f"SELECT * FROM {tablename}  where First_Name = ?",(t,))
     s = r.fetchone()
@@ -377,6 +381,7 @@ def Edit(t,window,tablename,cursor):
     str_Email = StringVar(window)
     str_Phone = StringVar(window)
     str_Prescription = StringVar(window)
+
     # to store data
     str_First_Name.set(s[0])
     str_Middle_Name.set(s[1])
@@ -386,20 +391,26 @@ def Edit(t,window,tablename,cursor):
     str_Email.set(s[5])
     str_Phone.set(s[6])
     str_Prescription.set(s[7])
-    Entry(window,textvariable=str_First_Name).grid(row=1,column=0)
-    Entry(window,textvariable=str_Middle_Name).grid(row=1,column=1)
-    Entry(window,textvariable=str_Last_Name).grid(row=1,column=2)
-    Entry(window,textvariable=str_Gender).grid(row=1,column=3)
-    Entry(window,textvariable=str_Age).grid(row=1,column=4)
-    Entry(window,textvariable=str_Email).grid(row=1,column=5)
-    Entry(window,textvariable=str_Phone).grid(row=1,column=6)
-    Entry(window,textvariable=str_Prescription).grid(row=1,column=7)
+    #print("str_First_Name" + s[0])
+    #print("str_Phone" + s[6])
+    Entry(window,textvariable=str_First_Name).grid(row=row_num,column=0)
+    Entry(window,textvariable=str_Middle_Name).grid(row=row_num,column=1)
+    Entry(window,textvariable=str_Last_Name).grid(row=row_num,column=2)
+    Entry(window,textvariable=str_Gender).grid(row=row_num,column=3)
+    Entry(window,textvariable=str_Age).grid(row=row_num,column=4)
+    Entry(window,textvariable=str_Email).grid(row=row_num,column=5)
+    Entry(window,textvariable=str_Phone).grid(row=row_num,column=6)
+    Entry(window,textvariable=str_Prescription).grid(row=row_num,column=7)
     K=Button(window,text='Update', command= lambda : my_update())
-    K.grid(row=17,column=1)
+    K.grid(row=row_num,column=9)
+    
     def my_update():
-        query = f'UPDATE {tablename} SET First_Name,Middle_Name,Last_Name,Gender,Age,Email,Phone,Prescription VALUES(?,?,?,?,?,?,?,) WHERE First_Name = ?'
-        data = (str_First_Name.get(), str_Middle_Name.get(), str_Last_Name.get(), str_Gender.get(), str_Age.get(), str_Email.get(), str_Phone.get(), str_Prescription.get())
-        cursor.execute(query,data)
+        query = f"UPDATE Patients SET First_Name = ?,Middle_Initial = ?,Last_Name =?,Gender=?,Age=?,Email=?,Phone=?,Prescriptions=? WHERE First_Name = ?"
+        data = (str_First_Name.get(), str_Middle_Name.get(), str_Last_Name.get(), str_Gender.get(), str_Age.get(), str_Email.get(), str_Phone.get(), str_Prescription.get(),t)
+        #print("Query : " + query)
+        #print(data)
+
+        cursor.execute(query, data)
         patients_db.commit()
         Display_patients(window,tablename,cursor)
     return
