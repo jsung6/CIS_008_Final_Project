@@ -4,7 +4,7 @@ from tkinter import messagebox
 from tkinter import *
 from tkinter.ttk import *
 from tkcalendar import DateEntry
-#from tkinter.ttk import *
+
 
 root = Tk()
 
@@ -13,7 +13,6 @@ user = ""
 
 databaseMed = "medical_storage_1000.db"
 databasePatient = "patients.db"
-databaseUser = "users.db"
 databasePres = "prescription.db"
 tableNameMed = "Prescription_Drugs"
 tableNamePatient = "Patients"
@@ -41,20 +40,13 @@ except sqlite3.Error as error:
     print("Error while connecting to patients sqlite database", error)
 
 try:
-    user_db = sqlite3.connect(databaseUser)
-    cursor_user = user_db.cursor()
-except sqlite3.Error as error:
-    print("Error while connecting to user sqlite database", error)
-
-
-try:
     pres_db = sqlite3.connect(databasePres)
     cursor_pres = pres_db.cursor()
 except sqlite3.Error as error:
     print("Error while connecting to prescription sqlite database", error)
 
 
-user_password = (cursor_user.execute('select Username, Password from Users').fetchall())
+user_password = (cursor_pres.execute('select Username, Password from Users').fetchall())
 
 def create_login():
     root.title("Medical Store Management System")
@@ -139,7 +131,7 @@ def login_check(username, password, frame):
         open_dashboard(username)
     else:
         #errorLabel = Label(frame, text="Username and/or password not correct. Please try again.")
-        errorLabal = tkinter.messagebox.showwarning(title='Login Warning', message="Username and/or password not correct. Please try again.")
+        tkinter.messagebox.showwarning(title='Login Warning', message="Username and/or password not correct. Please try again.")
         #errorLabel.grid(row=6, column=0, columnspan=2)
     return
 
@@ -303,7 +295,7 @@ def add_to_database(frame, tableName, columns, database, cursor):
     return
 def save_data(username,password,firstname,m_name,lastname,gender,bday,role,addr,zipcode,city,state,phone,email,window):
     # error if required field is empty
-    if username.get()=="" or password.get() == "" or firstname.get() == "" or lastname.get()=="" or role.get()=="":
+    if username.get()== "" or password.get() == "" or firstname.get() == "" or lastname.get()== "" or role.get()== "":
         messagebox.showerror('Error',"Please enter required field")
         return
     # for getting data
@@ -321,11 +313,11 @@ def save_data(username,password,firstname,m_name,lastname,gender,bday,role,addr,
     State = state.get()
     Phone = phone.get()
     Email = email.get()
-    # user db interface
+    # user table interfaces into db
     insert_query = ''' INSERT INTO Users (Username,Password,First_name,Middle_Initial,Last_name,Gender,Birthdate,Role,Address,Zipcode,City,State,Phone,Email) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
     data_insert_tuple = (Username,Password,First_name,Middle_Initial,Last_name,Gender,Birthdate,Role,Address,Zipcode,City,State,Phone,Email)
-    cursor_user.execute(insert_query,data_insert_tuple)
-    user_db.commit()
+    cursor_pres.execute(insert_query,data_insert_tuple)
+    pres_db.commit()
     window.quit()
 def close(rt):
     rt.quit()
@@ -686,81 +678,6 @@ def add_prescription(frame, tableName, columns, database, cursor):
 
     return
 
-def save_data(username,password,firstname,m_name,lastname,gender,bday,role,addr,zipcode,city,state,phone,email,window):
-    Username = username.get()
-    Password = password.get()
-    First_name = firstname.get()
-    Middle_Initial= m_name.get()
-    Last_name = lastname.get()
-    Gender = gender.get()
-    Birthdate = bday.get()
-    Role = role.get()
-    Address = addr.get()
-    Zipcode = zipcode.get()
-    City = city.get()
-    State = state.get()
-    Phone = phone.get()
-    Email = email.get()
-    # user db interface
-    insert_query = ''' INSERT INTO Users (Username,Password,First_name,Middle_Initial,Last_name,Gender,Birthdate,Role,Address,Zipcode,City,State,Phone,Email) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
-    data_insert_tuple = (Username,Password,First_name,Middle_Initial,Last_name,Gender,Birthdate,Role,Address,Zipcode,City,State,Phone,Email)
-    cursor_user.execute(insert_query,data_insert_tuple)
-    user_db.commit()
-    window.quit()
-
-def close(rt):
-    rt.quit()
-
-def display_patients(rt,TableName,cursor):
-    clear_frame(rt)
-    tkinter.Label(rt,text='Edit/Delete Patients Record').grid(row=0,column=0,columnspan=6,padx=10,pady=10)
-    query = f'SELECT * FROM {TableName} ORDER BY First_Name Asc LIMIT 15'
-    rows = cursor.execute(query).fetchall()
-    # to display columns name of patients table
-    k = tkinter.Label(rt, text='First_Name')
-    k.grid(row=1, column=0, padx=10, pady=10)
-    l = tkinter.Label(rt, text='Middle_Name')
-    l.grid(row=1, column=1, padx=10, pady=10)
-    l = tkinter.Label(rt, text='Last_Name')
-    l.grid(row=1, column=2, padx=10, pady=10)
-    m = tkinter.Label(rt, text='Gender')
-    m.grid(row=1, column=3, padx=10, pady=10)
-    m = tkinter.Label(rt, text='Age')
-    m.grid(row=1, column=4, padx=10, pady=10)
-    n = tkinter.Label(rt, text='Email')
-    n.grid(row=1, column=5, padx=10, pady=10)
-    m = tkinter.Label(rt, text='Phone')
-    m.grid(row=1, column=6, padx=10, pady=10)
-    m = tkinter.Label(rt, text='Prescription')
-    m.grid(row=1, column=7, padx=10, pady=10)
-
-    r = 1
-    for row in rows:
-        for j in range(len(row)):
-            z = tkinter.Entry(rt)
-            z.grid(row=r,column=j)
-            z.insert(END,row[j])
-
-        del1 = tkinter.Button(rt, text='X', command= lambda d=row[0]: patient_del(d,rt,TableName,cursor))
-        del1.grid(row=r,column=j+1)
-        r += 1
-    homeButton = Button(rt, width=15, text="Home Menu", command=lambda: home_Menu(rt))
-    homeButton.grid(row=17,column=1,columnspan=6,sticky='e',padx=10,pady=10)
-    edit = Button(rt,width=15,text='Edit', command= None)
-    edit.grid(row=17,column=0,columnspan=6,sticky='w',padx=10,pady=10)
-
-
-def patient_del(t,win,tb_name,cur):
-    var = messagebox.askyesnocancel("Delete?","Delete First_Name:" + t,default='no')
-    if var:
-        query = "DELETE FROM Patients WHERE First_Name = ?"
-        data = (t,)
-        conn = cursor_patient.execute(query,data)
-        messagebox.showerror('Deleted?','Number of row deleted :'+ str(conn.rowcount))
-        patients_db.commit()
-    # to refresh table
-    display_patients(win,tb_name,cur)
-    return
 
 
 create_login()
