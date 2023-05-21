@@ -1,18 +1,20 @@
 import sqlite3
 import tkinter
+import os
 from tkinter import messagebox
 from tkinter import *
 from tkinter.ttk import *
 from tkcalendar import DateEntry
-
+from InvoiceGenerator.api import Invoice, Item, Client, Provider, Creator
+from InvoiceGenerator.pdf import SimpleInvoice
+from datetime import date
 
 root = Tk()
 
 #root.configure(background='black')
 user = ""
-
-databaseMed = "medical_storage_1000.db"
-databasePatient = "patients.db"
+databaseMed = "prescription.db"
+databasePatient = "prescription.db"
 databasePres = "prescription.db"
 tableNameMed = "Prescription_Drugs"
 tableNamePatient = "Patients"
@@ -101,7 +103,9 @@ def open_dashboard(username):
     patientLabel = Label(frame, text="Current Patients")
     searchPatientsButton = Button(frame, width=25, text="Search Patients", command=lambda: search_database(frame, ["all"], tableNamePatient, patientColumns, cursor_patient))
     addPatientButton = Button(frame, width=25, text="Add New Patient", command=lambda: add_to_database(frame, tableNamePatient, patientColumns, databasePatient, cursor_patient))
-    deletePatientButton = Button(frame, width=25, text="Edit/Delete Existing Patient", command=lambda: Display_patients(frame,tableNamePatient,cursor_patient))
+    deletePatientButton = Button(frame, width=25, text="Edit/Delete Existing Patient", command=lambda: Display_patients(frame,tableNamePatient,cursor_pres,0))
+    generateInvoiceButton = Button(frame, width=25, text="Generate Invoice", command=lambda: get_invoice(frame, tableNamePres, prescriptionColumns, cursor_pres,tableNameMed))
+
 
 
     # Display dashboard widgets
@@ -124,6 +128,90 @@ def open_dashboard(username):
     searchPatientsButton.grid(row=6, column=2, columnspan=3)
     addPatientButton.grid(row=7, column=2, columnspan=3)
     deletePatientButton.grid(row=8, column=2, columnspan=3)
+    generateInvoiceButton.grid(row=9, column=2, columnspan=3)
+
+def get_invoice(frame, tableName, columns, cursor,tableNameMed):
+    clear_frame(frame)
+    patientId = StringVar(frame)
+    patientId.set("Patient_Id")
+    addLabel1 = Label(frame, text="Patient ID:")
+    addLabel1.grid(row=1, column=0)
+    dropDown1 = OptionMenu(frame, patientId, *get_patient_ids(cursor))
+    dropDown1.grid(row=1, column=1)
+    generateInvoiceButton = Button(frame, width=25, text="Generate Invoice", command=lambda: generate_invoice(frame, tableNamePres, prescriptionColumns, cursor_pres,patientId,tableNameMed))
+   
+    generateInvoiceButton.grid(row=2, column=1)
+    homeButton = Button(frame, width=15, text="Home Menu", command=lambda: home_Menu(frame))
+    homeButton.grid(row=4, column=1)
+
+
+def generate_invoice(frame, tableName, columns, cursor,patientId,tableNameMed):
+
+    print(patientId.get())
+    try:
+        query = f"SELECT Patients.Patient_id,Patients.First_name, Patients.Last_name,Prescription_Drugs.Non_Proprietary_Name,pres.Quantity,Prescription_Drugs.Price,Prescription_Drugs.Quantity,Prescription_Drugs.Product_Number FROM pres LEFT JOIN Patients ON pres.Patient_id = Patients.Patient_id LEFT JOIN Prescription_Drugs ON pres.Drug_id = Prescription_Drugs.Product_Number WHERE Patients.Patient_id = {patientId.get()}"
+        rows = cursor.execute(query).fetchall()
+        print(rows)
+        print(f"No of records - {len(rows)}")
+        if (len(rows) == 0):
+            raise Exception("Sorry, no numbers below zero")
+        else:
+            os.environ["INVOICE_LANG"] = "en"
+            client = Client(rows[0][1] + " " + rows[0][2])
+            provider = Provider('MCA', bank_account='2600420569', bank_code='2010')
+            creator = Creator('CIS_008_Group3')
+            invoice = Invoice(client, provider, creator)
+            invoice.currency = u'\u0024'
+            invoice.currency_locale = 'en_US.UTF-8'
+            invoice.number = patientId.get()
+            invoice.use_tax = True
+            #invoice.title = f"Invoice for {patientId.get()}"
+            invoice.date = date.today()
+
+            for i in range(len(rows)):
+                print(i)
+                avilable_quantity = rows[i][6]
+                requested_quantity = rows[i][4]
+                print(f"Check-1 {avilable_quantity} {requested_quantity}")
+                if (requested_quantity <= avilable_quantity):
+                    print(f"Updating for {rows[i]}")
+                    price = float(rows[i][5].split("$")[1])
+                    print(rows[i][4],price,rows[i][3],'10.04')
+                    dstring = rows[i][3].strip()          
+                    invoice.add_item(Item(rows[i][4],price, description=dstring,tax='10.04'))
+
+                else:
+                    raise IndexError
+            
+
+            pdf = SimpleInvoice(invoice)
+            pdf.gen(f"invoice-{rows[0][0]}.pdf", generate_qr_code=True)
+            tkinter.messagebox.showinfo(title ='Invoice', message=f'Invocie of {rows[0][1] + " " + rows[0][2]} generated successfully') 
+
+            update_database(cursor,rows,tableNameMed)
+            print("The END")
+
+              
+    except IndexError as err:
+        tkinter.messagebox.showwarning(title ='Invoice Warning',message=f'Running out of Stock -{rows[i][3]} ')
+    except Exception as err:
+        print("An error occurred:", err)
+        print(len(rows))
+        tkinter.messagebox.showwarning(title = "Invoice Warning",message='Record not found') 
+
+def update_database(cursor,rows,tableNameMed):
+    print(f"in update functin {cursor}{rows}{tableNameMed}")
+    for i in range(len(rows)):
+        avilable_quantity = rows[i][6]
+        requested_quantity = rows[i][4]
+        print(f"Check-1 {avilable_quantity} {requested_quantity}")
+        remaing_quantity = avilable_quantity - requested_quantity
+        query = f"UPDATE {tableNameMed} SET Quantity = {remaing_quantity} WHERE Product_Number = '{rows[i][7]}'"
+        print(f"The query is - {query}")
+        cursor.execute(query)
+        pres_db.commit()
+
+    
 
 def login_check(username, password, frame):
     if (username, password) in user_password:
@@ -322,55 +410,80 @@ def save_data(username,password,firstname,m_name,lastname,gender,bday,role,addr,
 def close(rt):
     rt.quit()
 
-def Display_patients(rt,TableName,cursor):
+def Display_patients(rt, TableName, cursor, start):
     clear_frame(rt)
+    
+    if(start < 0):
+        start = 0
+    next_number = start + 15
+
     Label(rt,text='Edit/Delete Patients Record',font=('Arial',15)).grid(row=0,column=0,columnspan=6,padx=10,pady=10)
-    query = f'SELECT * FROM {TableName} ORDER BY First_Name Asc LIMIT 15'
+    query = f'SELECT Patient_id, First_Name, Middle_Initial, Last_Name, Gender, Age, Email, Phone FROM {TableName} ORDER BY Patient_id Asc LIMIT {str(start)}, 15'
     rows = cursor.execute(query).fetchall()
+    #print(f"Legth of records - {rows}")
+    r_set=cursor.execute(f"SELECT count(*) as no from {TableName}")
+    data_row=r_set.fetchone()
+    no_rec=data_row[0] # Total number of rows in table
+    #print(no_rec)
+
+    #print(f"Next number - {next_number}")
     # to display columns name of patients table
-    Label(rt, text='First_Name').grid(row=1, column=0, padx=10, pady=10)
-    Label(rt, text='Middle_Name').grid(row=1, column=1, padx=10, pady=10)
-    Label(rt, text='Last_Name').grid(row=1, column=2, padx=10, pady=10)
-    Label(rt, text='Gender').grid(row=1, column=3, padx=10, pady=10)
-    Label(rt, text='Age').grid(row=1, column=4, padx=10, pady=10)
-    Label(rt, text='Email').grid(row=1, column=5, padx=10, pady=10)
-    Label(rt, text='Phone').grid(row=1, column=6, padx=10, pady=10)
-    
-    
+    Label(rt, text='Patient_id').grid(row=1, column=0, padx=10, pady=10)
+    Label(rt, text='First_Name').grid(row=1, column=1, padx=10, pady=10)
+    Label(rt, text='Middle_Name').grid(row=1, column=2, padx=10, pady=10)
+    Label(rt, text='Last_Name').grid(row=1, column=3, padx=10, pady=10)
+    Label(rt, text='Gender').grid(row=1, column=4, padx=10, pady=10)
+    Label(rt, text='Age').grid(row=1, column=5, padx=10, pady=10)
+    Label(rt, text='Email').grid(row=1, column=6, padx=10, pady=10)
+    Label(rt, text='Phone').grid(row=1, column=7, padx=10, pady=10)
 
 
     r = 2
     for row in rows:
-        for j in range(len(row)-1):
+        for j in range(len(row)):
             z = tkinter.Entry(rt)
             z.grid(row=r,column=j)
             z.insert(END,row[j])
         #print("Rownum 1: :" + str(r))
-        edit = tkinter.Button(rt, width=15, text='Edit', command=lambda d=row[0], row_num=r: Edit(d,str(row_num), rt, TableName, cursor))
+        edit = tkinter.Button(rt, width=15, text='Edit', command=lambda d=row[0], row_num=r: Edit(d,str(row_num), rt, TableName, cursor, start))
         edit.grid(row=r,column=j+2)
-        del1 = tkinter.Button(rt, text='X', command= lambda d=row[0]: patient_del(d,rt,TableName,cursor))
+        del1 = tkinter.Button(rt, text='X', command= lambda d=row[0]: patient_del(d,rt,TableName,cursor,start))
         del1.grid(row=r,column=j+1)
         r += 1
-    homeButton = Button(rt, width=15, text="Home Menu", command=lambda: home_Menu(rt))
-    homeButton.grid(row=17,column=1,columnspan=6,sticky='e',padx=10,pady=10)
+
+    if start > 0:
+        prevButton = Button(rt, width=15, text="<<Prev", command=lambda: Display_patients(rt, TableName, cursor, (start - 15)))
+        prevButton.grid(row=17,column=0,sticky='e',pady=10)
     
+    homeButton = Button(rt, width=15, text="Home Menu", command=lambda: home_Menu(rt))
+    homeButton.grid(row=17,column=4,sticky='e',padx=10,pady=10)
+
+    nextButton = Button(rt, width=15, text="Next>>", command=lambda: Display_patients(rt, TableName, cursor, (start + 15)))
+    nextButton.grid(row=17,column=9,sticky='e',padx=10)
+    if(no_rec <= next_number): 
+        nextButton["state"]="disabled" # disable next button
+    else:
+        nextButton["state"]="active"
+
+    #text_scroll.config(command=canvas.yview)
 
 
-def patient_del(t,win,tb_name,cur):
-    var = messagebox.askyesnocancel("Delete?","Delete First_Name:" + t,default='no')
+def patient_del(t,win,tb_name,cur, start):
+    var = messagebox.askyesnocancel("Delete?","Delete Patient_id:" + str(t),default='no')
     if var:
-        query = "DELETE FROM Patients WHERE First_Name = ?"
-        data = (t,)
+        query = "DELETE FROM Patients WHERE Patient_id = ?"
+        data = (str(t),)
         conn = cur.execute(query,data)
         messagebox.showerror('Deleted?','Number of row deleted :'+ str(conn.rowcount))
-        patients_db.commit()
+        pres_db.commit()
     # to refresh table
-    Display_patients(win,tb_name,cur)
+    Display_patients(win,tb_name,cur,start)
     return
-def Edit(t,row_num, window,tablename,cursor):
+def Edit(t,row_num, window,tablename,cursor, start):
     
     #Display_patients(window,tablename,cursor)
-    r = cursor.execute(f"SELECT * FROM {tablename}  where First_Name = ?",(t,))
+    print(f"SELECT Patient_id, First_Name, Middle_Initial, Last_Name, Gender, Age, Email, Phone FROM {tablename}  where Patient_id = ?",(t,))
+    r = cursor.execute(f"SELECT Patient_id, First_Name, Middle_Initial, Last_Name, Gender, Age, Email, Phone FROM {tablename}  where Patient_id = ?",(str(t),))
     s = r.fetchone()
     str_First_Name = StringVar(window)
     str_Middle_Name = StringVar(window)
@@ -379,39 +492,44 @@ def Edit(t,row_num, window,tablename,cursor):
     str_Age = StringVar(window)
     str_Email = StringVar(window)
     str_Phone = StringVar(window)
+    str_Patient_id = StringVar(window)
     
 
     # to store data
-    str_First_Name.set(s[0])
-    str_Middle_Name.set(s[1])
-    str_Last_Name.set(s[2])
-    str_Gender.set(s[3])
-    str_Age.set(s[4])
-    str_Email.set(s[5])
-    str_Phone.set(s[6])
-   
+
+    str_Patient_id.set(s[0])
+    str_First_Name.set(s[1])
+    str_Middle_Name.set(s[2])
+    str_Last_Name.set(s[3])
+    str_Gender.set(s[4])
+    str_Age.set(s[5])
+    str_Email.set(s[6])
+    str_Phone.set(s[7])
+
     #print("str_First_Name" + s[0])
     #print("str_Phone" + s[6])
-    Entry(window,textvariable=str_First_Name).grid(row=row_num,column=0)
-    Entry(window,textvariable=str_Middle_Name).grid(row=row_num,column=1)
-    Entry(window,textvariable=str_Last_Name).grid(row=row_num,column=2)
-    Entry(window,textvariable=str_Gender).grid(row=row_num,column=3)
-    Entry(window,textvariable=str_Age).grid(row=row_num,column=4)
-    Entry(window,textvariable=str_Email).grid(row=row_num,column=5)
-    Entry(window,textvariable=str_Phone).grid(row=row_num,column=6)
+    Entry(window,textvariable=str_Patient_id).grid(row=row_num,column=0)
+    Entry(window,textvariable=str_First_Name).grid(row=row_num,column=1)
+    Entry(window,textvariable=str_Middle_Name).grid(row=row_num,column=2)
+    Entry(window,textvariable=str_Last_Name).grid(row=row_num,column=3)
+    Entry(window,textvariable=str_Gender).grid(row=row_num,column=4)
+    Entry(window,textvariable=str_Age).grid(row=row_num,column=5)
+    Entry(window,textvariable=str_Email).grid(row=row_num,column=6)
+    Entry(window,textvariable=str_Phone).grid(row=row_num,column=7)
    
     K=Button(window,text='Update', command= lambda : my_update())
-    K.grid(row=row_num,column=8)
+    K.grid(row=row_num,column=9)
+
     
     def my_update():
-        query = f"UPDATE Patients SET First_Name = ?,Middle_Initial = ?,Last_Name =?,Gender=?,Age=?,Email=?,Phone=? WHERE First_Name = ?"
+        query = f"UPDATE Patients SET First_Name = ?,Middle_Initial = ?,Last_Name =?,Gender=?,Age=?,Email=?,Phone=? WHERE Patient_id = ?"
         data = (str_First_Name.get(), str_Middle_Name.get(), str_Last_Name.get(), str_Gender.get(), str_Age.get(), str_Email.get(), str_Phone.get(),t)
-        #print("Query : " + query)
-        #print(data)
+        print("Query : " + query)
+        print(data)
 
         cursor.execute(query, data)
-        patients_db.commit()
-        Display_patients(window,tablename,cursor)
+        pres_db.commit()
+        Display_patients(window,tablename,cursor,start)
     return
 
 def display_Inventory(frame, databaseList, columns):
@@ -677,8 +795,6 @@ def add_prescription(frame, tableName, columns, database, cursor):
     displayList.grid(row=len(columns) + 5, column=0, columnspan=4)
 
     return
-
-
 
 create_login()
 
