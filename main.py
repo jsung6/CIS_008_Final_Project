@@ -25,7 +25,7 @@ username = ""
 
 inventoryColumns = ["Product_Number", "Non_Proprietary_Name", "Manufacturer", "Dosage", "Unit", "Category_Description", "Price",  "Quantity"]
 prescriptionColumns = ["Patient_Id", "First_Name", "Last_Name", "Age", "Medicine_Id", "Medicine_Name", "Dosage", "Unit", "Quantity"]
-patientColumns = ["First_Name", "Middle_Initial", "Last_Name", "Gender", "Age", "Email", "Phone"]
+patientColumns = ["First_Name", "Middle_Initial", "Last_Name", "Gender", "Age", "Email", "Phone","Patient_id"]
 
 
 try:
@@ -53,12 +53,13 @@ user_password = (cursor_pres.execute('select Username, Password from Users').fet
 def create_login():
     root.title("Medical Store Management System")
     root.geometry("400x200")
+
     
     frame = Frame(root)
     frame.place(x=30, y=30)
 
     # Generate patient login widgets
-    titleLabel = Label(frame, text="Sign In")
+    titleLabel = Label(frame, text="Sign In",font="Arial,15")
     userLabel = Label(frame, text="Username:")#, background="#6fa8dc")
     userEntry = Entry(frame, width=15)#, background="#6fa8dc")
     passwordLabel = Label(frame, text="Password:")
@@ -70,12 +71,12 @@ def create_login():
 
     # Display login widgets
     titleLabel.grid(row=0, column=0, columnspan=2)
-    userLabel.grid(row=1, column=0)
-    userEntry.grid(row=1, column=1)
-    passwordLabel.grid(row=2, column=0)
-    passwordEntry.grid(row=2, column=1)
-    rememberCheck.grid(row=3, column=0)
-    signButton.grid(row=3, column=1)
+    userLabel.grid(row=1, column=0,padx=5,pady=5)
+    userEntry.grid(row=1, column=1,padx=5,pady=5)
+    passwordLabel.grid(row=2, column=0,padx=5,pady=5)
+    passwordEntry.grid(row=2, column=1,padx=5,pady=5)
+    rememberCheck.grid(row=3, column=0,padx=5,pady=5)
+    signButton.grid(row=3, column=1,padx=5,pady=5)
     newAccountLabel.grid(row=4, column=0, columnspan=2)
     newAccountButton.grid(row=5, column=0, columnspan=2)
 
@@ -616,9 +617,15 @@ def submit_Labels(newEntry, frame, tableName, columns, database, cursor):
     entryItems = []
     for entry in newEntry:
         entryItems.append(entry.get())
+    print(f"Check for tableName {tableName}")
 
     cursor.execute(f"INSERT INTO {tableName} VALUES (?, ?, ?, ?, ?, ?, ?, ?)", entryItems)
     #database.commit()
+    if tableName == "Patients":
+        patients_db.commit()
+    elif tableName == "Prescription_Drugs":
+        medical_storage_db.commit()
+
     clear_Labels(newEntry)
     add_to_database(frame, tableName, columns, database, cursor)
     
@@ -729,7 +736,25 @@ def insert_prescription(newEntry, frame, tableName, columns, database, cursor):
     entryItems = []
     for entry in newEntry:
         entryItems.append(entry.get())
-    cursor.execute(f"INSERT INTO {tableName} (Patient_id,Drug_id,Quantity) VALUES (?, ?, ?)", entryItems)
+    print(entryItems)
+    query= f"SELECT Drug_id FROM pres WHERE Patient_id = {int(entryItems[0])}"
+    current_product_ids =  [item[0] for item in cursor.execute(query).fetchall()]
+    #print(dir(current_product_ids))
+    #print(f"Current products - {current_product_ids}")
+    if current_product_ids:
+        #print("Products presetn")
+        if entryItems[1] in current_product_ids:
+            query=f"select Quantity FROM pres WHERE Drug_id= '{entryItems[1]}'"
+            current_quantity = [item[0] for item in cursor.execute(query).fetchall()]
+            #print(current_quantity[0])
+            new_quantity = current_quantity[0] + int(entryItems[2])
+            #print(f"New quantity {new_quantity}")
+            query = f"UPDATE {tableName} SET Quantity = {new_quantity} WHERE Drug_id = '{entryItems[1]}'"
+            cursor.execute(query)
+        else:
+            cursor.execute(f"INSERT INTO {tableName} (Patient_id,Drug_id,Quantity) VALUES (?, ?, ?)", entryItems)
+    else:
+        cursor.execute(f"INSERT INTO {tableName} (Patient_id,Drug_id,Quantity) VALUES (?, ?, ?)", entryItems)
     database.commit()
     add_prescription(frame, tableName, columns, database, cursor)
     return
